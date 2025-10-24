@@ -7,7 +7,6 @@ import br.com.service.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -26,23 +25,33 @@ public class PessoaFrame extends JFrame {
     private final JComboBox<TipoPessoa> tipoPessoaComboBox = new JComboBox<>(TipoPessoa.values());
 
     public PessoaFrame() {
-        // Para usar a API real: new PessoaApiService();
-        // Para usar os dados MOCKADOS (simulados): new PessoaApiServiceMock();
         this.pessoaApiService = new PessoaApiServiceMock();
 
-        setTitle("Cadastro de Pessoas");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Fecha apenas esta janela
+        setTitle("Gerenciamento de Pessoas");
+        setSize(900, 700);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        getContentPane().setBackground(UIStyle.FUNDO_JANELA);
+        setLayout(new BorderLayout(10, 10));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Tabela
+        // --- Tabela ---
         String[] columnNames = {"ID", "Nome Completo", "CPF/CNPJ", "CTPS", "Data Nasc.", "Tipo"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        UIStyle.estilizarTabela(table);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDA_SUTIL));
+        add(scrollPane, BorderLayout.CENTER);
 
-        // Painel de formulário
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+        // --- Painel Sul com Formulário e Botões ---
+        JPanel southPanel = new JPanel(new BorderLayout(10, 10));
+        southPanel.setOpaque(false);
+
+        // --- Painel de Formulário ---
+        JPanel formPanel = new JPanel(new GridLayout(0, 4, 15, 10));
+        UIStyle.estilizarPainel(formPanel);
+
         idField.setEditable(false);
         formPanel.add(new JLabel("ID:"));
         formPanel.add(idField);
@@ -57,20 +66,29 @@ public class PessoaFrame extends JFrame {
         formPanel.add(new JLabel("Tipo Pessoa:"));
         formPanel.add(tipoPessoaComboBox);
 
-        // Painel de botões
-        JPanel buttonPanel = new JPanel();
+        UIStyle.estilizarCampoDeTexto(idField);
+        UIStyle.estilizarCampoDeTexto(nomeField);
+        UIStyle.estilizarCampoDeTexto(cpfCnpjField);
+        UIStyle.estilizarCampoDeTexto(ctpsField);
+        UIStyle.estilizarCampoDeTexto(dataNascimentoField);
+        UIStyle.estilizarComboBox(tipoPessoaComboBox);
+        southPanel.add(formPanel, BorderLayout.CENTER);
+
+        // --- Painel de Botões ---
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setOpaque(false);
+
         JButton novoButton = new JButton("Novo");
         JButton salvarButton = new JButton("Salvar");
         JButton deletarButton = new JButton("Deletar");
-        JButton limparButton = new JButton("Limpar");
+
+        UIStyle.estilizarBotaoPrimario(salvarButton);
+        UIStyle.estilizarBotaoSecundario(novoButton);
+        UIStyle.estilizarBotaoSecundario(deletarButton);
 
         buttonPanel.add(novoButton);
-        buttonPanel.add(salvarButton);
         buttonPanel.add(deletarButton);
-        buttonPanel.add(limparButton);
-
-        JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(formPanel, BorderLayout.CENTER);
+        buttonPanel.add(salvarButton);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(southPanel, BorderLayout.SOUTH);
@@ -83,11 +101,9 @@ public class PessoaFrame extends JFrame {
         });
 
         novoButton.addActionListener(e -> limparFormulario());
-        limparButton.addActionListener(e -> limparFormulario());
         salvarButton.addActionListener(e -> salvarPessoa());
         deletarButton.addActionListener(e -> deletarPessoa());
 
-        // Carregar dados iniciais
         atualizarTabela();
     }
 
@@ -196,21 +212,8 @@ public class PessoaFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Garante que a UI seja executada na Event Dispatch Thread (EDT)
+        UIStyle.inicializar();
         SwingUtilities.invokeLater(() -> {
-            // Tenta usar um Look and Feel mais moderno se disponível
-            try {
-
-                for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                    if ("Nimbus".equals(info.getName())) {
-                        UIManager.setLookAndFeel(info.getClassName());
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                // Se o Nimbus não estiver disponível, usa o padrão do sistema
-            }
-
             PessoaFrame frame = new PessoaFrame();
             frame.setVisible(true);
         });

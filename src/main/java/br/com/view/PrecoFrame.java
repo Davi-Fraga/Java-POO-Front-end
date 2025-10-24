@@ -25,21 +25,32 @@ public class PrecoFrame extends JFrame {
     public PrecoFrame() {
         this.precoService = new PrecoApiServiceMock();
 
-        setTitle("Cadastro de Preços");
-        setSize(800, 600);
+        setTitle("Gerenciamento de Preços");
+        setSize(900, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        getContentPane().setBackground(UIStyle.FUNDO_JANELA);
+        setLayout(new BorderLayout(10, 10));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Tabela
         String[] columnNames = {"ID", "Valor (R$)", "Data/Hora Alteração"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        UIStyle.estilizarTabela(table);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDA_SUTIL));
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Painel Sul com Formulário e Botões
+        JPanel southPanel = new JPanel(new BorderLayout(10, 10));
+        southPanel.setOpaque(false);
 
         // Painel de formulário
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+        JPanel formPanel = new JPanel(new GridLayout(0, 4, 15, 10));
+        UIStyle.estilizarPainel(formPanel);
         idField.setEditable(false);
-        dataHoraField.setEditable(false); // A data/hora é gerenciada pelo sistema
+        dataHoraField.setEditable(false);
 
         formPanel.add(new JLabel("ID:"));
         formPanel.add(idField);
@@ -48,20 +59,25 @@ public class PrecoFrame extends JFrame {
         formPanel.add(new JLabel("Última Alteração:"));
         formPanel.add(dataHoraField);
 
+        UIStyle.estilizarCampoDeTexto(idField);
+        UIStyle.estilizarCampoDeTexto(valorField);
+        UIStyle.estilizarCampoDeTexto(dataHoraField);
+        southPanel.add(formPanel, BorderLayout.CENTER);
+
         // Painel de botões
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setOpaque(false);
         JButton novoButton = new JButton("Novo");
         JButton salvarButton = new JButton("Salvar");
         JButton deletarButton = new JButton("Deletar");
-        JButton limparButton = new JButton("Limpar");
+
+        UIStyle.estilizarBotaoPrimario(salvarButton);
+        UIStyle.estilizarBotaoSecundario(novoButton);
+        UIStyle.estilizarBotaoSecundario(deletarButton);
 
         buttonPanel.add(novoButton);
-        buttonPanel.add(salvarButton);
         buttonPanel.add(deletarButton);
-        buttonPanel.add(limparButton);
-
-        JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(formPanel, BorderLayout.CENTER);
+        buttonPanel.add(salvarButton);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(southPanel, BorderLayout.SOUTH);
@@ -74,11 +90,9 @@ public class PrecoFrame extends JFrame {
         });
 
         novoButton.addActionListener(e -> limparFormulario());
-        limparButton.addActionListener(e -> limparFormulario());
         salvarButton.addActionListener(e -> salvarPreco());
         deletarButton.addActionListener(e -> deletarPreco());
 
-        // Carregar dados iniciais
         atualizarTabela();
     }
 
@@ -164,18 +178,8 @@ public class PrecoFrame extends JFrame {
     }
 
     public static void main(String[] args) {
+        UIStyle.inicializar();
         SwingUtilities.invokeLater(() -> {
-            try {
-                for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                    if ("Nimbus".equals(info.getName())) {
-                        UIManager.setLookAndFeel(info.getClassName());
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                // Usa o padrão
-            }
-
             PrecoFrame frame = new PrecoFrame();
             frame.setVisible(true);
         });
