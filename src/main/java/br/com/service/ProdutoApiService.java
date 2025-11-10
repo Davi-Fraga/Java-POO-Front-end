@@ -16,7 +16,7 @@ public class ProdutoApiService implements IProdutoService {
 
     private final HttpClient client;
     private final ObjectMapper objectMapper;
-    private final String apiBaseUrl = "http://localhost:8080/api/v1/produtos";
+    private final String apiBaseUrl = ApiConfig.BASE_URL + "/produtos";
 
     public ProdutoApiService() {
         this.client = HttpClient.newHttpClient();

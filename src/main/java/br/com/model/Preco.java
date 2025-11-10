@@ -10,40 +10,53 @@ public class Preco {
 
     private Long id;
     private BigDecimal valor;
-    private LocalDateTime dataHoraAlteracao;
+    private LocalDateTime dataHoraAlteracao; // Nome do atributo corrigido
 
+    // Construtor padrão (necessário para desserialização do Jackson)
     public Preco() {
     }
 
+    // Construtor com todos os campos
     public Preco(Long id, BigDecimal valor, LocalDateTime dataHoraAlteracao) {
         this.id = id;
         this.valor = valor;
         this.dataHoraAlteracao = dataHoraAlteracao;
     }
 
-    // Getters e Setters
-
+    // Getters
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
+    // Getter corrigido
     public LocalDateTime getDataHoraAlteracao() {
         return dataHoraAlteracao;
     }
 
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
+    }
+
+    // Setter corrigido
     public void setDataHoraAlteracao(LocalDateTime dataHoraAlteracao) {
         this.dataHoraAlteracao = dataHoraAlteracao;
+    }
+
+    @Override
+    public String toString() {
+        return "Preco{" +
+               "id=" + id +
+               ", valor=" + valor +
+               ", dataHoraAlteracao=" + dataHoraAlteracao +
+               '}';
     }
 }

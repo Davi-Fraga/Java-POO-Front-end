@@ -1,8 +1,11 @@
 package br.com.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Classe POJO para representar um usuário.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Usuario {
 
     private int id;

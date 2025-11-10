@@ -2,8 +2,8 @@ package br.com.view;
 
 import br.com.model.Contato;
 import br.com.model.enums.TipoContato;
-import br.com.service.ContatoApiService;
-import br.com.service.IContatoService;
+import br.com.service.ContatoService;
+import br.com.util.AsyncTaskExecutor; // Importar AsyncTaskExecutor
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ContatoFrame extends JFrame {
 
-    private final IContatoService contatoService;
+    private final ContatoService contatoService;
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField idField = new JTextField(5);
@@ -22,7 +22,7 @@ public class ContatoFrame extends JFrame {
     private final JComboBox<TipoContato> tipoContatoComboBox = new JComboBox<>(TipoContato.values());
 
     public ContatoFrame() {
-        this.contatoService = new ContatoApiService();
+        this.contatoService = new ContatoService();
 
         setTitle("Gerenciamento de Contatos");
         setSize(900, 700);
@@ -34,7 +34,12 @@ public class ContatoFrame extends JFrame {
 
         // Tabela
         String[] columnNames = {"ID", "Telefone", "Email", "Endereço", "Tipo"};
-        tableModel = new DefaultTableModel(columnNames, 0);
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Torna as células da tabela não editáveis
+            }
+        };
         table = new JTable(tableModel);
         UIStyle.estilizarTabela(table);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -73,12 +78,15 @@ public class ContatoFrame extends JFrame {
         JButton novoButton = new JButton("Novo");
         JButton salvarButton = new JButton("Salvar");
         JButton deletarButton = new JButton("Deletar");
+        JButton editarButton = new JButton("Editar"); // Adicionado botão Editar
 
         UIStyle.estilizarBotaoPrimario(salvarButton);
         UIStyle.estilizarBotaoSecundario(novoButton);
         UIStyle.estilizarBotaoSecundario(deletarButton);
+        UIStyle.estilizarBotaoSecundario(editarButton);
 
         buttonPanel.add(novoButton);
+        buttonPanel.add(editarButton); // Adicionado botão Editar
         buttonPanel.add(deletarButton);
         buttonPanel.add(salvarButton);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -95,6 +103,7 @@ public class ContatoFrame extends JFrame {
         novoButton.addActionListener(e -> limparFormulario());
         salvarButton.addActionListener(e -> salvarContato());
         deletarButton.addActionListener(e -> deletarContato());
+        editarButton.addActionListener(e -> editarContato()); // Listener para o botão Editar
 
         atualizarTabela();
     }
@@ -111,6 +120,12 @@ public class ContatoFrame extends JFrame {
         Object tipoContatoObj = tableModel.getValueAt(selectedRow, 4);
         if (tipoContatoObj instanceof TipoContato) {
             tipoContatoComboBox.setSelectedItem(tipoContatoObj);
+        } else if (tipoContatoObj != null) { // Tenta converter String para TipoContato
+            try {
+                tipoContatoComboBox.setSelectedItem(TipoContato.valueOf(tipoContatoObj.toString()));
+            } catch (IllegalArgumentException ex) {
+                System.err.println("TipoContato inválido na tabela: " + tipoContatoObj);
+            }
         }
     }
 
@@ -124,21 +139,26 @@ public class ContatoFrame extends JFrame {
     }
 
     private void atualizarTabela() {
-        try {
-            List<Contato> contatos = contatoService.listarContatos();
-            tableModel.setRowCount(0); // Limpa a tabela
-            for (Contato c : contatos) {
-                tableModel.addRow(new Object[]{
-                        c.getId(),
-                        c.getTelefone(),
-                        c.getEmail(),
-                        c.getEndereco(),
-                        c.getTipoContato()
-                });
+        AsyncTaskExecutor.execute(
+            this, // Componente pai para o dialog de carregamento
+            () -> contatoService.listarTodos(), // Tarefa em background
+            contatos -> { // Callback de sucesso
+                tableModel.setRowCount(0); // Limpa a tabela
+                for (Contato c : contatos) {
+                    tableModel.addRow(new Object[]{
+                            c.getId(),
+                            c.getTelefone(),
+                            c.getEmail(),
+                            c.getEndereco(),
+                            c.getTipoContato()
+                    });
+                }
+            },
+            erro -> { // Callback de erro
+                JOptionPane.showMessageDialog(this, "Erro ao buscar contatos: " + erro.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+                erro.printStackTrace(); // Para depuração
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao buscar contatos: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
-        }
+        );
     }
 
     private void salvarContato() {
@@ -148,24 +168,37 @@ public class ContatoFrame extends JFrame {
             String endereco = enderecoField.getText();
             TipoContato tipoContato = (TipoContato) tipoContatoComboBox.getSelectedItem();
 
-            Contato contato = new Contato(null, telefone, email, endereco, tipoContato);
+            Contato contato = new Contato(null, tipoContato, telefone, email, endereco);
 
             String idText = idField.getText();
-            if (idText.isEmpty()) { // Criar novo
-                contatoService.criarContato(contato);
-                JOptionPane.showMessageDialog(this, "Contato criado com sucesso!");
-            } else { // Atualizar existente
+            if (!idText.isEmpty()) { // Se o ID não estiver vazio, é uma atualização
                 Long id = Long.parseLong(idText);
-                contato.setId(id);
-                contatoService.atualizarContato(id, contato);
-                JOptionPane.showMessageDialog(this, "Contato atualizado com sucesso!");
+                contato.setId(id); // Definir o ID para a atualização
             }
 
-            limparFormulario();
-            atualizarTabela();
+            AsyncTaskExecutor.execute(
+                this,
+                () -> {
+                    if (idText.isEmpty()) {
+                        return contatoService.criar(contato);
+                    } else {
+                        return contatoService.atualizar(contato);
+                    }
+                },
+                resultado -> {
+                    JOptionPane.showMessageDialog(this, "Contato salvo com sucesso!");
+                    limparFormulario();
+                    atualizarTabela();
+                },
+                erro -> {
+                    JOptionPane.showMessageDialog(this, "Erro ao salvar contato: " + erro.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+                    erro.printStackTrace();
+                }
+            );
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar contato: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erro ao processar dados do formulário: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -181,14 +214,30 @@ public class ContatoFrame extends JFrame {
             return;
         }
 
-        try {
-            Long id = Long.parseLong(idText);
-            contatoService.deletarContato(id);
-            JOptionPane.showMessageDialog(this, "Contato deletado com sucesso!");
-            limparFormulario();
-            atualizarTabela();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao deletar contato: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+        Long id = Long.parseLong(idText);
+
+        AsyncTaskExecutor.execute(
+            this,
+            () -> {
+                return contatoService.deletar(id);
+            },
+            sucesso -> {
+                JOptionPane.showMessageDialog(this, "Contato deletado com sucesso!");
+                limparFormulario();
+                atualizarTabela();
+            },
+            erro -> {
+                JOptionPane.showMessageDialog(this, "Erro ao deletar contato: " + erro.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+                erro.printStackTrace();
+            }
+        );
+    }
+
+    private void editarContato() {
+        if (idField.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Selecione um contato na tabela para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Edite os campos e clique em 'Salvar' para aplicar as alterações.", "Editar Contato", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

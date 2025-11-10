@@ -2,8 +2,8 @@ package br.com.view;
 
 import br.com.model.Estoque;
 import br.com.model.enums.TipoEstoque;
-import br.com.service.IEstoqueService;
-import br.com.service.EstoqueApiService;
+import br.com.service.EstoqueService; // Usar o serviço real
+import br.com.service.IEstoqueService; // Manter a interface para flexibilidade
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -16,7 +16,8 @@ import java.util.List;
 
 public class EstoqueFrame extends JFrame {
 
-    private final IEstoqueService estoqueService;
+    // Mudar para o serviço real
+    private final EstoqueService estoqueService; // Alterado de IEstoqueService para EstoqueService
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField idField = new JTextField(5);
@@ -29,7 +30,8 @@ public class EstoqueFrame extends JFrame {
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
 
     public EstoqueFrame() {
-        this.estoqueService = new EstoqueApiService();
+        // Instanciar o serviço real
+        this.estoqueService = new EstoqueService(); // Alterado de EstoqueApiService() para EstoqueService()
 
         setTitle("Gerenciamento de Estoque");
         setSize(900, 700);
@@ -126,6 +128,12 @@ public class EstoqueFrame extends JFrame {
         Object tipoEstoqueObj = tableModel.getValueAt(selectedRow, 6);
         if (tipoEstoqueObj instanceof TipoEstoque) {
             tipoEstoqueComboBox.setSelectedItem(tipoEstoqueObj);
+        } else if (tipoEstoqueObj != null) { // Tenta converter String para TipoEstoque
+            try {
+                tipoEstoqueComboBox.setSelectedItem(TipoEstoque.valueOf(tipoEstoqueObj.toString()));
+            } catch (IllegalArgumentException ex) {
+                System.err.println("TipoEstoque inválido na tabela: " + tipoEstoqueObj);
+            }
         }
     }
 
@@ -142,7 +150,8 @@ public class EstoqueFrame extends JFrame {
 
     private void atualizarTabela() {
         try {
-            List<Estoque> estoques = estoqueService.listarEstoques();
+            // Ligar o GET: Chamar o serviço real
+            List<Estoque> estoques = estoqueService.listarTodos(); // Alterado de listarEstoques() para listarTodos()
             tableModel.setRowCount(0); // Limpa a tabela
             for (Estoque e : estoques) {
                 tableModel.addRow(new Object[]{
@@ -150,13 +159,14 @@ public class EstoqueFrame extends JFrame {
                         e.getQuantidade(),
                         e.getLocalTanque(),
                         e.getLocalEndereco(),
-                        e.getLoteFabricacao(),
+                        e.getLocalFabricacao(),
                         e.getDataValidade().format(dateFormatter),
                         e.getTipoEstoque()
                 });
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao buscar estoques: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace(); // Para depuração
         }
     }
 
@@ -173,12 +183,12 @@ public class EstoqueFrame extends JFrame {
 
             String idText = idField.getText();
             if (idText.isEmpty()) { // Criar novo
-                estoqueService.criarEstoque(estoque);
+                estoqueService.criar(estoque); // Chamar o método criar do serviço real
                 JOptionPane.showMessageDialog(this, "Estoque criado com sucesso!");
             } else { // Atualizar existente
                 Long id = Long.parseLong(idText);
-                estoque.setId(id);
-                estoqueService.atualizarEstoque(id, estoque);
+                estoque.setId(id); // Definir o ID para a atualização
+                estoqueService.atualizar(estoque); // Chamar o método atualizar do serviço real
                 JOptionPane.showMessageDialog(this, "Estoque atualizado com sucesso!");
             }
 
@@ -187,10 +197,13 @@ public class EstoqueFrame extends JFrame {
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Erro de formato numérico (Quantidade). Use '.' como separador decimal.", "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         } catch (DateTimeParseException e) {
             JOptionPane.showMessageDialog(this, "Formato de data inválido. Use yyyy-MM-dd.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao salvar estoque: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -208,17 +221,26 @@ public class EstoqueFrame extends JFrame {
 
         try {
             Long id = Long.parseLong(idText);
-            estoqueService.deletarEstoque(id);
+            estoqueService.deletar(id); // Chamar o método deletar do serviço real
             JOptionPane.showMessageDialog(this, "Item do estoque deletado com sucesso!");
             limparFormulario();
             atualizarTabela();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao deletar item do estoque: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+            } catch (UnsupportedLookAndFeelException e) {
+                e.printStackTrace();
+            }
             EstoqueFrame frame = new EstoqueFrame();
             frame.setVisible(true);
         });

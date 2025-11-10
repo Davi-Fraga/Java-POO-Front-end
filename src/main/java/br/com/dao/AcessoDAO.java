@@ -18,10 +18,11 @@ public class AcessoDAO {
 
     static {
         // Logs de acesso iniciais
-        logs.add(new Acesso(proximoId++, "teste1", "192.168.1.10", LocalDateTime.now().minusHours(1), "Sucesso"));
-        logs.add(new Acesso(proximoId++, "teste2", "Módulo_B", LocalDateTime.now().minusMinutes(30), "Sucesso"));
-        logs.add(new Acesso(proximoId++, "teste1", "192.168.1.10", LocalDateTime.now().minusMinutes(15), "Falha"));
-        logs.add(new Acesso(proximoId++, "desconhecido", "203.0.113.25", LocalDateTime.now().minusMinutes(5), "Bloqueado"));
+        // Usando o construtor de 5 argumentos: (Long id, String nomeAcesso, String localLogin, LocalDateTime dataHora, String status)
+        logs.add(new Acesso((long) proximoId++, "teste1", "192.168.1.10", LocalDateTime.now().minusHours(1), "Sucesso"));
+        logs.add(new Acesso((long) proximoId++, "teste2", "Módulo_B", LocalDateTime.now().minusMinutes(30), "Sucesso"));
+        logs.add(new Acesso((long) proximoId++, "teste1", "192.168.1.10", LocalDateTime.now().minusMinutes(15), "Falha"));
+        logs.add(new Acesso((long) proximoId++, "desconhecido", "203.0.113.25", LocalDateTime.now().minusMinutes(5), "Bloqueado"));
     }
 
     /**
@@ -37,7 +38,8 @@ public class AcessoDAO {
             statusFinal = sucesso ? "Sucesso" : "Falha";
         }
 
-        logs.add(new Acesso(proximoId++, nomePerfil, localLogin, LocalDateTime.now(), statusFinal));
+        // Usando o construtor de 5 argumentos: (Long id, String nomeAcesso, String localLogin, LocalDateTime dataHora, String status)
+        logs.add(new Acesso((long) proximoId++, nomePerfil, localLogin, LocalDateTime.now(), statusFinal));
     }
 
     /**

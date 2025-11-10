@@ -1,10 +1,11 @@
 package br.com.service;
 
 import br.com.model.Produto;
-import br.com.model.enums.TipoProduto;
+// import br.com.model.enums.TipoProduto; // Removido: TipoProduto não faz parte do modelo Produto
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime; // Importar LocalDateTime
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,9 +17,11 @@ public class ProdutoApiServiceMock implements IProdutoService {
 
     public ProdutoApiServiceMock() {
         // Dados iniciais para teste
-        produtos.add(new Produto(nextId++, "Gasolina Comum", "GC001", "Petrobras", "Petrobras", "Combustível", TipoProduto.COMBUSTIVEL, new BigDecimal("5.89")));
-        produtos.add(new Produto(nextId++, "Óleo Motor 5W30", "OM5W30", "Ipiranga", "Ipiranga", "Lubrificante", TipoProduto.LUBRIFICANTE, new BigDecimal("45.50")));
-        produtos.add(new Produto(nextId++, "Pneu Aro 15", "PN185-60R15", "Goodyear", "Goodyear", "Pneus", TipoProduto.CONVENIENCIA, new BigDecimal("350.00")));
+        // Corrigido: Chamadas ao construtor de Produto para corresponder à assinatura de 6 argumentos
+        // public Produto(Long id, String nome, String descricao, BigDecimal preco, LocalDateTime createdAt, LocalDateTime updatedAt)
+        produtos.add(new Produto(nextId++, "Gasolina Comum", "Combustível de alta octanagem", new BigDecimal("5.89"), LocalDateTime.now(), LocalDateTime.now()));
+        produtos.add(new Produto(nextId++, "Óleo Motor 5W30", "Óleo sintético para motores", new BigDecimal("45.50"), LocalDateTime.now(), LocalDateTime.now()));
+        produtos.add(new Produto(nextId++, "Pneu Aro 15", "Pneu radial para carros de passeio", new BigDecimal("350.00"), LocalDateTime.now(), LocalDateTime.now()));
     }
 
     @Override
@@ -34,6 +37,9 @@ public class ProdutoApiServiceMock implements IProdutoService {
             throw new IOException("Falha ao criar produto: Nome já existe no mock.");
         }
         produto.setId(nextId++);
+        // Definir createdAt e updatedAt para o mock
+        produto.setCreatedAt(LocalDateTime.now());
+        produto.setUpdatedAt(LocalDateTime.now());
         produtos.add(produto);
         return produto;
     }
@@ -44,6 +50,12 @@ public class ProdutoApiServiceMock implements IProdutoService {
         for (int i = 0; i < produtos.size(); i++) {
             if (produtos.get(i).getId().equals(id)) {
                 produto.setId(id);
+                // Definir updatedAt para o mock
+                produto.setUpdatedAt(LocalDateTime.now());
+                // Manter o createdAt original se não for fornecido
+                if (produto.getCreatedAt() == null) {
+                    produto.setCreatedAt(produtos.get(i).getCreatedAt());
+                }
                 produtos.set(i, produto);
                 return produto;
             }

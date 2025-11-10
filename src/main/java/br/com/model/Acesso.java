@@ -1,65 +1,99 @@
 package br.com.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 
-/**
- * Classe POJO para representar um registro de acesso.
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Acesso {
 
-    private int idAcesso;
-    private String usuarioOuPerfil;
-    private String localLogin;
-    private LocalDateTime dataHora;
+    private Long id;
+    private String nomeAcesso; // Atributo para o nome do acesso
+    private String usuarioPerfil; // Atributo para o perfil do usuário
+    private String localLogin; // Atributo para o local de login
     private String status;
+    private LocalDateTime dataHora;
 
-    public Acesso(int idAcesso, String usuarioOuPerfil, String localLogin, LocalDateTime dataHora, String status) {
-        this.idAcesso = idAcesso;
-        this.usuarioOuPerfil = usuarioOuPerfil;
+    // Construtor padrão (necessário para desserialização do Jackson)
+    public Acesso() {
+    }
+
+    // Construtor com todos os campos
+    public Acesso(Long id, String nomeAcesso, String usuarioPerfil, String localLogin, String status, LocalDateTime dataHora) {
+        this.id = id;
+        this.nomeAcesso = nomeAcesso;
+        this.usuarioPerfil = usuarioPerfil;
         this.localLogin = localLogin;
-        this.dataHora = dataHora;
         this.status = status;
+        this.dataHora = dataHora;
     }
 
-    // Getters e Setters
-
-    public int getIdAcesso() {
-        return idAcesso;
+    // NOVO CONSTRUTOR SOBRECARREGADO PARA ACOMPANHAR O ACESSO DAO
+    // Mapeia os 5 argumentos que AcessoDAO está passando para os 6 atributos da classe Acesso.
+    // O 'usuarioPerfil' será definido como "N/A" por padrão neste construtor.
+    public Acesso(Long id, String nomeAcesso, String localLogin, LocalDateTime dataHora, String status) {
+        this(id, nomeAcesso, "N/A", localLogin, status, dataHora); // Chama o construtor completo
     }
 
-    public void setIdAcesso(int idAcesso) {
-        this.idAcesso = idAcesso;
+    // Getters corrigidos para corresponder aos chamados em AcessoFrame.java
+    public Long getIdAcesso() { // Renomeado de getId() para getIdAcesso()
+        return id;
     }
 
-    public String getUsuarioOuPerfil() {
-        return usuarioOuPerfil;
+    public String getAcesso() { // Getter para o nome do acesso (mantido)
+        return nomeAcesso;
     }
 
-    public void setUsuarioOuPerfil(String usuarioOuPerfil) {
-        this.usuarioOuPerfil = usuarioOuPerfil;
+    public String getUsuarioOuPerfil() { // Renomeado de getUsuarioPerfil() para getUsuarioOuPerfil()
+        return usuarioPerfil;
     }
 
-    public String getLocalLogin() {
+    public String getLocalLogin() { // Renomeado de getLocalLoguin() para getLocalLogin()
         return localLogin;
     }
 
-    public void setLocalLogin(String localLogin) {
-        this.localLogin = localLogin;
-    }
-
-    public LocalDateTime getDataHora() {
-        return dataHora;
-    }
-
-    public void setDataHora(LocalDateTime dataHora) {
-        this.dataHora = dataHora;
-    }
-
-    public String getStatus() {
+    public String getStatus() { // Mantido
         return status;
     }
 
-    public void setStatus(String status) {
+    public LocalDateTime getDataHora() { // Mantido
+        return dataHora;
+    }
+
+    // Setters corrigidos para manter a consistência
+    public void setIdAcesso(Long id) { // Renomeado de setId() para setIdAcesso()
+        this.id = id;
+    }
+
+    public void setAcesso(String nomeAcesso) { // Setter para o nome do acesso (mantido)
+        this.nomeAcesso = nomeAcesso;
+    }
+
+    public void setUsuarioOuPerfil(String usuarioPerfil) { // Renomeado de setUsuarioPerfil() para setUsuarioOuPerfil()
+        this.usuarioPerfil = usuarioPerfil;
+    }
+
+    public void setLocalLogin(String localLogin) { // Renomeado de setLocalLoguin() para setLocalLogin()
+        this.localLogin = localLogin;
+    }
+
+    public void setStatus(String status) { // Mantido
         this.status = status;
+    }
+
+    public void setDataHora(LocalDateTime dataHora) { // Mantido
+        this.dataHora = dataHora;
+    }
+
+    @Override
+    public String toString() {
+        return "Acesso{" +
+                "id=" + id +
+                ", nomeAcesso='" + nomeAcesso + '\'' +
+                ", usuarioPerfil='" + usuarioPerfil + '\'' +
+                ", localLogin='" + localLogin + '\'' +
+                ", status='" + status + '\'' +
+                ", dataHora=" + dataHora +
+                '}';
     }
 }

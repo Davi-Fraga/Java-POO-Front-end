@@ -15,7 +15,6 @@ public class UsuarioDAO {
     static {
         // Pré-populando a lista de usuários com os dados de teste especificados
         usuarios.add(new Usuario(1, "teste1", "123", "GERENCIA"));
-        usuarios.add(new Usuario(2, "teste2", "123", "ABASTECIMENTO"));
     }
 
     /**

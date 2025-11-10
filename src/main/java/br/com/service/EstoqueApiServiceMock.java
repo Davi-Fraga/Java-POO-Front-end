@@ -30,8 +30,9 @@ public class EstoqueApiServiceMock implements IEstoqueService {
 
     @Override
     public Estoque criarEstoque(Estoque estoque) throws IOException {
-        System.out.println("MOCK: Criando estoque para o lote: " + estoque.getLoteFabricacao());
-        if (estoques.stream().anyMatch(e -> e.getLoteFabricacao().equalsIgnoreCase(estoque.getLoteFabricacao()))) {
+        // Corrigido: Usar getLocalFabricacao() em vez de getLoteFabricacao()
+        System.out.println("MOCK: Criando estoque para o lote: " + estoque.getLocalFabricacao());
+        if (estoques.stream().anyMatch(e -> e.getLocalFabricacao().equalsIgnoreCase(estoque.getLocalFabricacao()))) {
             throw new IOException("Falha ao criar estoque: Lote de Fabricação já existe no mock.");
         }
         estoque.setId(nextId++);

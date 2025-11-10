@@ -21,9 +21,11 @@ public class PessoaApiServiceMock implements IPessoaService {
 
     public PessoaApiServiceMock() {
         // Dados iniciais para teste
-        pessoas.add(new Pessoa(nextId++, "Maria da Silva (Mock)", "12345678901", 12345L, LocalDate.of(1990, 5, 10), TipoPessoa.FISICA));
-        pessoas.add(new Pessoa(nextId++, "João Pereira (Mock)", "98765432100", 54321L, LocalDate.of(1985, 11, 20), TipoPessoa.FISICA));
-        pessoas.add(new Pessoa(nextId++, "Empresa XYZ (Mock)", "11222333000144", null, LocalDate.of(2005, 1, 15), TipoPessoa.JURIDICA));
+        // Corrigido: Chamadas ao construtor de Pessoa para corresponder à assinatura de 5 argumentos
+        // public Pessoa(Long id, String nome, String cpfCnpj, LocalDate dataNascimento, TipoPessoa tipoPessoa)
+        pessoas.add(new Pessoa(nextId++, "Maria da Silva (Mock)", "12345678901", LocalDate.of(1990, 5, 10), TipoPessoa.FISICA));
+        pessoas.add(new Pessoa(nextId++, "João Pereira (Mock)", "98765432100", LocalDate.of(1985, 11, 20), TipoPessoa.FISICA));
+        pessoas.add(new Pessoa(nextId++, "Empresa XYZ (Mock)", "11222333000144", LocalDate.of(2005, 1, 15), TipoPessoa.JURIDICA));
     }
 
     @Override
@@ -34,7 +36,8 @@ public class PessoaApiServiceMock implements IPessoaService {
 
     @Override
     public Pessoa criarPessoa(Pessoa pessoa) throws IOException {
-        System.out.println("MOCK: Criando pessoa: " + pessoa.getNomeCompleto());
+        // Corrigido: Usar getNome() em vez de getNomeCompleto()
+System.out.println("MOCK: Criando pessoa: " + pessoa.getNome());
         // Simula a validação de CPF/CNPJ único
         if (pessoas.stream().anyMatch(p -> p.getCpfCnpj().equals(pessoa.getCpfCnpj()))) {
             throw new IOException("Falha ao criar pessoa: CPF/CNPJ já existe no mock.");

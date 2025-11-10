@@ -9,68 +9,60 @@ import java.time.LocalDate;
 public class Pessoa {
 
     private Long id;
-    private String nomeCompleto;
+    private String nome;
     private String cpfCnpj;
-    private Long numeroCtps;
     private LocalDate dataNascimento;
     private TipoPessoa tipoPessoa;
 
+    // Construtor padrão (necessário para desserialização do Jackson)
     public Pessoa() {
     }
 
-    public Pessoa(Long id, String nomeCompleto, String cpfCnpj, Long numeroCtps, LocalDate dataNascimento, TipoPessoa tipoPessoa) {
+    // Construtor com todos os campos
+    public Pessoa(Long id, String nome, String cpfCnpj, LocalDate dataNascimento, TipoPessoa tipoPessoa) {
         this.id = id;
-        this.nomeCompleto = nomeCompleto;
+        this.nome = nome;
         this.cpfCnpj = cpfCnpj;
-        this.numeroCtps = numeroCtps;
         this.dataNascimento = dataNascimento;
         this.tipoPessoa = tipoPessoa;
     }
 
-    // Getters e Setters
-
+    // Getters
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNomeCompleto() {
-        return nomeCompleto;
-    }
-
-    public void setNomeCompleto(String nomeCompleto) {
-        this.nomeCompleto = nomeCompleto;
+    public String getNome() {
+        return nome;
     }
 
     public String getCpfCnpj() {
         return cpfCnpj;
     }
 
-    public void setCpfCnpj(String cpfCnpj) {
-        this.cpfCnpj = cpfCnpj;
-    }
-
-    public Long getNumeroCtps() {
-        return numeroCtps;
-    }
-
-    public void setNumeroCtps(Long numeroCtps) {
-        this.numeroCtps = numeroCtps;
-    }
-
     public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(LocalDate dataNascimento) {
-        this.dataNascimento = dataNascimento;
-    }
-
     public TipoPessoa getTipoPessoa() {
         return tipoPessoa;
+    }
+
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setCpfCnpj(String cpfCnpj) {
+        this.cpfCnpj = cpfCnpj;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
     }
 
     public void setTipoPessoa(TipoPessoa tipoPessoa) {
@@ -79,6 +71,12 @@ public class Pessoa {
 
     @Override
     public String toString() {
-        return nomeCompleto; // Usado para exibição em JComboBox ou JList
+        return "Pessoa{" +
+               "id=" + id +
+               ", nome='" + nome + '\'' +
+               ", cpfCnpj='" + cpfCnpj + '\'' +
+               ", dataNascimento=" + dataNascimento +
+               ", tipoPessoa=" + tipoPessoa +
+               '}';
     }
 }

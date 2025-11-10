@@ -1,17 +1,25 @@
 package br.com.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Classe POJO para representar um perfil de acesso com suas permissões e status.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PerfilAcesso {
 
     private int idPerfil;
     private String nomePerfil;
     private String status; // "Ativo", "Bloqueado"
     private Map<String, Boolean> permissoes;
+
+    // Construtor padrão para desserialização do Jackson
+    public PerfilAcesso() {
+        this.permissoes = new HashMap<>();
+    }
 
     public PerfilAcesso(int idPerfil, String nomePerfil, String status) {
         this.idPerfil = idPerfil;

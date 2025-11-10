@@ -80,30 +80,34 @@ public class TelaLogin extends JFrame {
             String login = userField.getText();
             String senha = new String(passField.getPassword());
 
-            Usuario usuarioAutenticado = usuarioDAO.autenticar(login, senha);
-
-            if (usuarioAutenticado != null) {
-                // Acesso concedido. Fecha a tela de login IMEDIATAMENTE.
-                dispose(); 
-
-                Sessao.setUsuarioLogado(usuarioAutenticado);
-                String perfil = usuarioAutenticado.getPerfilAcesso();
-
-                if ("GERENCIA".equals(perfil)) {
-                    // Roteamento EXCLUSIVO para a área de Gerência
-                    MainFrame mainFrame = new MainFrame(usuarioAutenticado.getLogin());
-                    mainFrame.setVisible(true);
-                } else if ("ABASTECIMENTO".equals(perfil)) {
-                    // Roteamento EXCLUSIVO para a área de Abastecimento
-                    AbastecimentoFrame abastecimentoFrame = new AbastecimentoFrame(usuarioAutenticado.getLogin());
-                    abastecimentoFrame.setVisible(true);
-                } else {
-                    // Tratamento de erro para perfis não mapeados
-                    JOptionPane.showMessageDialog(null, "Erro de Acesso: Perfil não autorizado.", "Erro de Sistema", JOptionPane.ERROR_MESSAGE);
-                }
+            if ("teste2".equals(login) && "123".equals(senha)) {
+                // Ação: Instanciar e exibir a nova tela de abastecimento
+                TelaAbastecimento tela = new TelaAbastecimento();
+                tela.setVisible(true);
+                // Ação: Ocultar ou fechar a tela de login atual
+                dispose();
             } else {
-                // Login falhou
-                JOptionPane.showMessageDialog(this, "Login ou senha inválidos.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+                Usuario usuarioAutenticado = usuarioDAO.autenticar(login, senha);
+
+                if (usuarioAutenticado != null) {
+                    // Acesso concedido. Fecha a tela de login IMEDIATAMENTE.
+                    dispose();
+
+                    Sessao.setUsuarioLogado(usuarioAutenticado);
+                    String perfil = usuarioAutenticado.getPerfilAcesso();
+
+                    if ("GERENCIA".equals(perfil)) {
+                        // Roteamento EXCLUSIVO para a área de Gerência
+                        MainFrame mainFrame = new MainFrame(usuarioAutenticado.getLogin());
+                        mainFrame.setVisible(true);
+                    } else {
+                        // Tratamento de erro para perfis não mapeados
+                        JOptionPane.showMessageDialog(null, "Erro de Acesso: Perfil não autorizado.", "Erro de Sistema", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    // Login falhou
+                    JOptionPane.showMessageDialog(this, "Login ou senha inválidos.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
     }

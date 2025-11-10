@@ -1,8 +1,8 @@
 package br.com.view;
 
 import br.com.model.Preco;
-import br.com.service.IPrecoService;
-import br.com.service.PrecoApiServiceMock;
+import br.com.service.PrecoService; // Usar o serviço real
+import br.com.service.IPrecoService; // Manter a interface para flexibilidade
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -14,7 +14,8 @@ import java.util.List;
 
 public class PrecoFrame extends JFrame {
 
-    private final IPrecoService precoService;
+    // Mudar para o serviço real
+    private final PrecoService precoService; // Alterado de IPrecoService para PrecoService
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField idField = new JTextField(5);
@@ -23,7 +24,8 @@ public class PrecoFrame extends JFrame {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public PrecoFrame() {
-        this.precoService = new PrecoApiServiceMock();
+        // Instanciar o serviço real
+        this.precoService = new PrecoService(); // Alterado de PrecoApiServiceMock() para PrecoService()
 
         setTitle("Gerenciamento de Preços");
         setSize(900, 700);
@@ -120,7 +122,8 @@ public class PrecoFrame extends JFrame {
 
     private void atualizarTabela() {
         try {
-            List<Preco> precos = precoService.listarPrecos();
+            // Ligar o GET: Chamar o serviço real
+            List<Preco> precos = precoService.listarTodos(); // Alterado de listarPrecos() para listarTodos()
             tableModel.setRowCount(0); // Limpa a tabela
             for (Preco p : precos) {
                 tableModel.addRow(new Object[]{
@@ -131,22 +134,25 @@ public class PrecoFrame extends JFrame {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao buscar preços: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace(); // Para depuração
         }
     }
 
     private void salvarPreco() {
         try {
-            BigDecimal valor = new BigDecimal(valorField.getText());
-            Preco preco = new Preco(null, valor, null); // Data/Hora será definida pelo serviço mock
+            BigDecimal valor = new BigDecimal(valorField.getText().replace(",", ".")); // Garantir formato correto
+
+            // Data/Hora será definida pelo backend, não precisamos enviar
+            Preco preco = new Preco(null, valor, null);
 
             String idText = idField.getText();
             if (idText.isEmpty()) { // Criar novo
-                precoService.criarPreco(preco);
+                precoService.criar(preco); // Chamar o método criar do serviço real
                 JOptionPane.showMessageDialog(this, "Preço criado com sucesso!");
             } else { // Atualizar existente
                 Long id = Long.parseLong(idText);
-                preco.setId(id);
-                precoService.atualizarPreco(id, preco);
+                preco.setId(id); // Definir o ID para a atualização
+                precoService.atualizar(preco); // Chamar o método atualizar do serviço real
                 JOptionPane.showMessageDialog(this, "Preço atualizado com sucesso!");
             }
 
@@ -155,8 +161,10 @@ public class PrecoFrame extends JFrame {
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Erro de formato numérico para o Valor. Use '.' como separador decimal.", "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao salvar preço: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -174,17 +182,27 @@ public class PrecoFrame extends JFrame {
 
         try {
             Long id = Long.parseLong(idText);
-            precoService.deletarPreco(id);
+            precoService.deletar(id); // Chamar o método deletar do serviço real
             JOptionPane.showMessageDialog(this, "Preço deletado com sucesso!");
             limparFormulario();
             atualizarTabela();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao deletar preço: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            // Garante que o Look and Feel seja aplicado antes de criar a janela
+            try {
+                UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+            } catch (UnsupportedLookAndFeelException e) {
+                e.printStackTrace();
+            }
             PrecoFrame frame = new PrecoFrame();
             frame.setVisible(true);
         });
