@@ -4,7 +4,7 @@ import br.com.model.Contato;
 import br.com.util.HttpConnectionUtil;
 
 import java.util.List;
-import java.util.Map; // Importar Map
+import java.util.Map;
 
 public class ContatoService {
 
@@ -12,9 +12,6 @@ public class ContatoService {
 
     /**
      * Lista todos os objetos Contato da API.
-     *
-     * @return Uma lista de objetos Contato.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou desserialização.
      */
     public List<Contato> listarTodos() {
         try {
@@ -27,10 +24,6 @@ public class ContatoService {
 
     /**
      * Busca um objeto Contato por ID na API.
-     *
-     * @param id O ID do contato a ser buscado.
-     * @return O objeto Contato correspondente ao ID.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou desserialização.
      */
     public Contato buscarPorId(Long id) {
         try {
@@ -44,13 +37,13 @@ public class ContatoService {
 
     /**
      * Cria um novo objeto Contato na API.
-     *
-     * @param contato O objeto Contato a ser criado.
-     * @return A resposta da API como String (pode ser o objeto criado com ID, etc.).
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou serialização.
      */
     public String criar(Contato contato) {
         try {
+            // DEBUGS IMPORTANTES: garantem que o objeto chegou aqui com pessoaId preenchido
+            System.out.println("DEBUG ContatoService Contato recebido = " + contato);
+            System.out.println("DEBUG ContatoService getPessoaId() = " + contato.getPessoaId());
+
             return HttpConnectionUtil.sendPostRequest(ENDPOINT, contato);
         } catch (Exception e) {
             System.err.println("Erro ao criar contato: " + e.getMessage());
@@ -60,10 +53,6 @@ public class ContatoService {
 
     /**
      * Atualiza um objeto Contato existente na API.
-     *
-     * @param contato O objeto Contato a ser atualizado (deve conter o ID).
-     * @return A resposta da API como String.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou serialização.
      */
     public String atualizar(Contato contato) {
         if (contato.getId() == null) {
@@ -80,10 +69,6 @@ public class ContatoService {
 
     /**
      * Deleta um objeto Contato da API pelo ID.
-     *
-     * @param id O ID do contato a ser deletado.
-     * @return true se a operação foi bem-sucedida, false caso contrário.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API.
      */
     public boolean deletar(Long id) {
         try {
@@ -98,11 +83,6 @@ public class ContatoService {
 
     /**
      * Atualiza parcialmente um objeto Contato na API.
-     *
-     * @param id O ID do contato a ser atualizado.
-     * @param campos Um mapa contendo os campos e seus novos valores para atualização.
-     * @return A resposta da API como String.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou serialização.
      */
     public String atualizarParcial(Long id, Map<String, Object> campos) {
         if (id == null) {

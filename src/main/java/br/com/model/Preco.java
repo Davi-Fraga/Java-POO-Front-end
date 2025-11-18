@@ -1,26 +1,36 @@
 package br.com.model;
 
+import br.com.model.enums.TipoPreco; // Assumindo que TipoPreco é um enum neste pacote
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Preco {
 
     private Long id;
     private BigDecimal valor;
-    private LocalDateTime dataHoraAlteracao; // Nome do atributo corrigido
+    @JsonProperty("dataAlteracao")
+    private LocalDate dataAlteracao;
+    @JsonProperty("horaAlteracao")
+    private LocalTime horaAlteracao;
+    @JsonProperty("tipoPreco")
+    private TipoPreco tipoPreco; // Novo campo para o tipo de preço
 
     // Construtor padrão (necessário para desserialização do Jackson)
     public Preco() {
     }
 
-    // Construtor com todos os campos
-    public Preco(Long id, BigDecimal valor, LocalDateTime dataHoraAlteracao) {
+    // Construtor com todos os campos (ajustado)
+    public Preco(Long id, BigDecimal valor, LocalDate dataAlteracao, LocalTime horaAlteracao, TipoPreco tipoPreco) {
         this.id = id;
         this.valor = valor;
-        this.dataHoraAlteracao = dataHoraAlteracao;
+        this.dataAlteracao = dataAlteracao;
+        this.horaAlteracao = horaAlteracao;
+        this.tipoPreco = tipoPreco;
     }
 
     // Getters
@@ -32,9 +42,16 @@ public class Preco {
         return valor;
     }
 
-    // Getter corrigido
-    public LocalDateTime getDataHoraAlteracao() {
-        return dataHoraAlteracao;
+    public LocalDate getDataAlteracao() {
+        return dataAlteracao;
+    }
+
+    public LocalTime getHoraAlteracao() {
+        return horaAlteracao;
+    }
+
+    public TipoPreco getTipoPreco() {
+        return tipoPreco;
     }
 
     // Setters
@@ -46,9 +63,16 @@ public class Preco {
         this.valor = valor;
     }
 
-    // Setter corrigido
-    public void setDataHoraAlteracao(LocalDateTime dataHoraAlteracao) {
-        this.dataHoraAlteracao = dataHoraAlteracao;
+    public void setDataAlteracao(LocalDate dataAlteracao) {
+        this.dataAlteracao = dataAlteracao;
+    }
+
+    public void setHoraAlteracao(LocalTime horaAlteracao) {
+        this.horaAlteracao = horaAlteracao;
+    }
+
+    public void setTipoPreco(TipoPreco tipoPreco) {
+        this.tipoPreco = tipoPreco;
     }
 
     @Override
@@ -56,7 +80,9 @@ public class Preco {
         return "Preco{" +
                "id=" + id +
                ", valor=" + valor +
-               ", dataHoraAlteracao=" + dataHoraAlteracao +
+               ", dataAlteracao=" + dataAlteracao +
+               ", horaAlteracao=" + horaAlteracao +
+               ", tipoPreco=" + tipoPreco +
                '}';
     }
 }

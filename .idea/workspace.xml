@@ -5,55 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f9763822-302f-4a19-b8ef-60e79f1d221e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/dao/Acesso.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/dao/Usuario.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Abastecimento.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/AbastecimentoApiServiceMock.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/AbastecimentoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/AcessoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/ApiConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/ContatoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/CustoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/EstoqueService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/PerfilAcessoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/PessoaService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/PrecoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/service/ProdutoService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/util/AsyncTaskExecutor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/util/HttpConnectionUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/util/PaginatedResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/util/ValidationUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/view/CupomFiscalPrinter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/view/TelaAbastecimento.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/dao/AcessoDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/dao/AcessoDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/dao/UsuarioDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/dao/UsuarioDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Acesso.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Acesso.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Bico.java" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/model/enums/TipoPreco.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Contato.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Contato.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Estoque.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Estoque.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/PerfilAcesso.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/PerfilAcesso.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Pessoa.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Pessoa.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Preco.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Preco.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Produto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Produto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/Usuario.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/enums/TipoCusto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/enums/TipoCusto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/BicoApiService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/EstoqueApiServiceMock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/EstoqueApiServiceMock.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/IBicoService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/PessoaApiServiceMock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/PessoaApiServiceMock.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/ProdutoApiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/ProdutoApiService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/model/enums/TipoProduto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/model/enums/TipoProduto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/ContatoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/ContatoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/IPrecoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/IPrecoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/PessoaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/PessoaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/PrecoApiServiceMock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/PrecoApiServiceMock.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/service/ProdutoApiServiceMock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/service/ProdutoApiServiceMock.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/AbastecimentoFrame.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/AcessoFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/view/AcessoFrame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/BicoPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/util/HttpConnectionUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/util/HttpConnectionUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/ContatoFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/view/ContatoFrame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/EstoqueFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/view/EstoqueFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/PessoaFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/view/PessoaFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/PrecoFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/view/PrecoFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/ProdutoFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/view/ProdutoFrame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/view/TelaLogin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/view/TelaLogin.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,25 +32,27 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="35FQYLYIkAjus98oTZyYqMtnWAU" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.TelaLogin.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.TelaLogin.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Davi Fraga/OneDrive/Documentos/Davi Fraga/Projetos/Java-POO-Front-end-main&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="TelaLogin" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="br.com.view.TelaLogin" />

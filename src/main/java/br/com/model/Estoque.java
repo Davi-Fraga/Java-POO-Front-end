@@ -2,6 +2,7 @@ package br.com.model;
 
 import br.com.model.enums.TipoEstoque; // Importar o enum TipoEstoque
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty; // Importar esta anotação
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ public class Estoque {
     private String localTanque;
     private String localCarregamento;
     private String localEndereco;
+    @JsonProperty("loteFabricacao") // Adicionar esta anotação
     private String localFabricacao; // Corrigido para 'localFabricacao'
     private LocalDate dataValidade;
     private TipoEstoque tipoEstoque; // Alterado para o tipo enum TipoEstoque
@@ -78,6 +80,7 @@ public class Estoque {
         return localEndereco;
     }
 
+    @JsonProperty("loteFabricacao") // Adicionar esta anotação ao getter
     public String getLocalFabricacao() { // Getter corrigido
         return localFabricacao;
     }
@@ -115,6 +118,7 @@ public class Estoque {
         this.localEndereco = localEndereco;
     }
 
+    @JsonProperty("loteFabricacao") // Adicionar esta anotação ao setter
     public void setLocalFabricacao(String localFabricacao) { // Setter corrigido
         this.localFabricacao = localFabricacao;
     }

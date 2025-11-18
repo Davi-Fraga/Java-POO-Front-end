@@ -1,15 +1,32 @@
 package br.com.model;
 
 import br.com.model.enums.TipoPessoa;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Pessoa {
 
+    // Aceita vários nomes possíveis de ID vindos do backend:
+    //  "id", "pessoaId", "idPessoa", "codigo", "codigoPessoa", "id_pessoa", "pessoa_id"
+    @JsonProperty("id")
+    @JsonAlias({
+            "pessoaId",
+            "idPessoa",
+            "codigo",
+            "codigoPessoa",
+            "id_pessoa",
+            "pessoa_id"
+    })
     private Long id;
+
+    // Backend envia "nomeCompleto", mapeamos para "nome"
+    @JsonProperty("nomeCompleto")
     private String nome;
+
     private String cpfCnpj;
     private LocalDate dataNascimento;
     private TipoPessoa tipoPessoa;
@@ -72,11 +89,11 @@ public class Pessoa {
     @Override
     public String toString() {
         return "Pessoa{" +
-               "id=" + id +
-               ", nome='" + nome + '\'' +
-               ", cpfCnpj='" + cpfCnpj + '\'' +
-               ", dataNascimento=" + dataNascimento +
-               ", tipoPessoa=" + tipoPessoa +
-               '}';
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", cpfCnpj='" + cpfCnpj + '\'' +
+                ", dataNascimento=" + dataNascimento +
+                ", tipoPessoa=" + tipoPessoa +
+                '}';
     }
 }

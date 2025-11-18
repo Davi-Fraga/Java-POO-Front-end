@@ -3,85 +3,79 @@ package br.com.service;
 import br.com.model.Pessoa;
 import br.com.util.HttpConnectionUtil;
 import br.com.util.PaginatedResponse;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import java.util.Collections;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map; // Importar Map
 
 public class PessoaService {
 
+    // Ajuste se o endpoint da sua API for diferente
     private static final String ENDPOINT = "/pessoas";
-    // ObjectMapper local para desserialização de tipos genéricos complexos
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    static {
-        // Configura o ObjectMapper para lidar com tipos de data e hora do Java 8
-        objectMapper.registerModule(new JavaTimeModule());
-    }
 
     /**
-     * Lista todas as Pessoas da API.
-     *
-     * @return Uma lista de objetos Pessoa.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou desserialização.
+     * Lista todas as pessoas (sem paginação).
+     * Usado, por exemplo, pelo ContatoFrame para preencher o combo de Pessoas.
      */
     public List<Pessoa> listarTodos() {
         try {
             return HttpConnectionUtil.sendGetListRequest(ENDPOINT, Pessoa.class);
         } catch (Exception e) {
-            System.err.println("Erro ao listar todas as pessoas: " + e.getMessage());
-            throw new RuntimeException("Não foi possível listar todas as pessoas.", e);
+            System.err.println("Erro ao listar pessoas: " + e.getMessage());
+            throw new RuntimeException("Não foi possível listar as pessoas.", e);
         }
     }
 
     /**
-     * Lista Pessoas com paginação.
+     * Lista pessoas com "paginação" para a tela PessoaFrame.
      *
-     * @param page O número da página (base 0).
-     * @param size O tamanho da página.
-     * @return Um objeto PaginatedResponse contendo a lista de Pessoas e metadados de paginação.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou desserialização.
+     * O backend está retornando um ARRAY simples de Pessoa (ex: [ { ... }, { ... } ]),
+     * e não um objeto paginado. Então:
+     *  - buscamos a lista simples;
+     *  - montamos um PaginatedResponse<Pessoa> manualmente.
      */
-    public PaginatedResponse<Pessoa> listarComPaginacao(int page, int size) {
+    public PaginatedResponse<Pessoa> listarComPaginacao(int pagina, int tamanhoPagina) {
         try {
-            String paginatedEndpoint = ENDPOINT + "?page=" + page + "&size=" + size;
-            String jsonResponse = HttpConnectionUtil.sendGetRawResponse(paginatedEndpoint);
+            // Busca a mesma lista simples que listarTodos()
+            List<Pessoa> pessoas = HttpConnectionUtil.sendGetListRequest(ENDPOINT, Pessoa.class);
 
-            // Desserializa a resposta JSON para PaginatedResponse<Pessoa> usando TypeReference
-            return objectMapper.readValue(jsonResponse, new TypeReference<PaginatedResponse<Pessoa>>() {});
+            PaginatedResponse<Pessoa> resposta = new PaginatedResponse<>();
+            resposta.setContent(pessoas);
+
+            // Como o backend não manda info de página, usamos uma única página
+            resposta.setPage(0);
+            resposta.setSize(pessoas.size());
+            resposta.setTotalElements(pessoas.size());
+            resposta.setTotalPages(1);
+
+            return resposta;
         } catch (Exception e) {
-            System.err.println("Erro ao listar pessoas com paginação (page=" + page + ", size=" + size + "): " + e.getMessage());
+            System.err.println("Erro ao listar pessoas com paginação: " + e.getMessage());
             throw new RuntimeException("Não foi possível listar pessoas com paginação.", e);
         }
     }
 
     /**
-     * Busca Pessoas por CPF/CNPJ.
+     * Busca pessoas filtrando por CPF/CNPJ.
+     * A tela PessoaFrame chama este método ao clicar em "Buscar CPF/CNPJ".
      *
-     * @param documento O CPF ou CNPJ a ser buscado.
-     * @return Uma lista de objetos Pessoa que correspondem ao documento.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou desserialização.
+     * Aqui assumimos que o backend aceita o filtro por query param:
+     *   GET /pessoas?cpfCnpj=...
+     * Se o seu endpoint for diferente, basta ajustar a linha do endpoint.
      */
-    public List<Pessoa> buscarPorCpfCnpj(String documento) {
+    public List<Pessoa> buscarPorCpfCnpj(String cpfCnpj) {
         try {
-            String searchEndpoint = ENDPOINT + "?cpfCnpj=" + documento;
-            // Assumimos que a API pode retornar uma lista, mesmo que seja de um único item
-            return HttpConnectionUtil.sendGetListRequest(searchEndpoint, Pessoa.class);
+            String param = URLEncoder.encode(cpfCnpj, StandardCharsets.UTF_8);
+            String endpointFiltrado = ENDPOINT + "?cpfCnpj=" + param;
+            return HttpConnectionUtil.sendGetListRequest(endpointFiltrado, Pessoa.class);
         } catch (Exception e) {
-            System.err.println("Erro ao buscar pessoa por CPF/CNPJ " + documento + ": " + e.getMessage());
-            throw new RuntimeException("Não foi possível buscar pessoa por CPF/CNPJ.", e);
+            System.err.println("Erro ao buscar pessoas por CPF/CNPJ: " + e.getMessage());
+            throw new RuntimeException("Não foi possível buscar pessoas pelo CPF/CNPJ informado.", e);
         }
     }
 
     /**
-     * Cria uma nova Pessoa na API.
-     *
-     * @param pessoa O objeto Pessoa a ser criado.
-     * @return A resposta da API como String (pode ser o objeto criado com ID, etc.).
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou serialização.
+     * Cria uma nova pessoa na API.
      */
     public String criar(Pessoa pessoa) {
         try {
@@ -93,11 +87,8 @@ public class PessoaService {
     }
 
     /**
-     * Atualiza uma Pessoa existente na API.
-     *
-     * @param pessoa O objeto Pessoa a ser atualizado (deve conter o ID).
-     * @return A resposta da API como String.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou serialização.
+     * Atualiza uma pessoa existente na API.
+     * A pessoa DEVE ter um ID preenchido.
      */
     public String atualizar(Pessoa pessoa) {
         if (pessoa.getId() == null) {
@@ -113,11 +104,7 @@ public class PessoaService {
     }
 
     /**
-     * Deleta uma Pessoa da API pelo ID.
-     *
-     * @param id O ID da pessoa a ser deletada.
-     * @return true se a operação foi bem-sucedida, false caso contrário.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API.
+     * Deleta uma pessoa pelo ID na API.
      */
     public boolean deletar(Long id) {
         try {
@@ -130,24 +117,6 @@ public class PessoaService {
         }
     }
 
-    /**
-     * Atualiza parcialmente um objeto Pessoa na API.
-     *
-     * @param id O ID da pessoa a ser atualizada.
-     * @param campos Um mapa contendo os campos e seus novos valores para atualização.
-     * @return A resposta da API como String.
-     * @throws RuntimeException Se ocorrer um erro na comunicação com a API ou serialização.
-     */
-    public String atualizarParcial(Long id, Map<String, Object> campos) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID da pessoa não pode ser nulo para atualização parcial.");
-        }
-        try {
-            String specificEndpoint = ENDPOINT + "/" + id;
-            return HttpConnectionUtil.sendPatchRequest(specificEndpoint, campos);
-        } catch (Exception e) {
-            System.err.println("Erro ao atualizar parcialmente a pessoa com ID " + id + ": " + e.getMessage());
-            throw new RuntimeException("Não foi possível atualizar parcialmente a pessoa com ID: " + id, e);
-        }
-    }
+    // Se existirem outros métodos antigos (buscarPorId, atualizarParcial, etc.),
+    // você pode colocá-los aqui embaixo, mantendo a mesma assinatura original.
 }

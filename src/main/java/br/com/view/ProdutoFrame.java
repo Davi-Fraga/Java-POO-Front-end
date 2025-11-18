@@ -1,19 +1,19 @@
 package br.com.view;
 
 import br.com.model.Produto;
+import br.com.model.enums.TipoProduto;
 import br.com.service.ProdutoService;
-import br.com.util.AsyncTaskExecutor; // Importar AsyncTaskExecutor
-import br.com.util.ValidationUtil; // Importar ValidationUtil
+import br.com.util.AsyncTaskExecutor;
+import br.com.util.ValidationUtil;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
-import javax.swing.border.Border; // Importar Border
+import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.List;
+import java.util.Arrays;
 
 public class ProdutoFrame extends JFrame {
 
@@ -25,31 +25,33 @@ public class ProdutoFrame extends JFrame {
     private final JTextField nomeField = new JTextField(20);
     private final JTextField descricaoField = new JTextField(30);
     private final JTextField precoField = new JTextField(10);
+    private final JComboBox<TipoProduto> tipoProdutoComboBox = new JComboBox<>(TipoProduto.values());
+    private final JTextField marcaField = new JTextField(20);
+    private final JTextField fornecedorField = new JTextField(20);
+    private final JTextField referenciaField = new JTextField(20);
+    private final JTextField categoriaField = new JTextField(20);
     private final JTextField createdAtField = new JTextField(20);
     private final JTextField updatedAtField = new JTextField(20);
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    // Borda padrão para resetar
     private final Border defaultBorder = new JTextField().getBorder();
 
     public ProdutoFrame() {
         this.produtoService = new ProdutoService();
 
         setTitle("Gerenciamento de Produtos");
-        setSize(1000, 700);
+        setSize(1200, 800);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(UIStyle.FUNDO_JANELA);
         setLayout(new BorderLayout(10, 10));
         getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // --- Tabela ---
-        String[] columnNames = {"ID", "Nome", "Descrição", "Preço (R$)", "Criado Em", "Atualizado Em"};
+        String[] columnNames = {"ID", "Nome", "Descrição", "Preço (R$)", "Tipo", "Marca", "Fornecedor", "Referência", "Categoria", "Criado Em", "Atualizado Em"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Torna as células da tabela não editáveis
+                return false;
             }
         };
         table = new JTable(tableModel);
@@ -58,11 +60,9 @@ public class ProdutoFrame extends JFrame {
         scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDA_SUTIL));
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- Painel Sul com Formulário e Botões ---
         JPanel southPanel = new JPanel(new BorderLayout(10, 10));
         southPanel.setOpaque(false);
 
-        // --- Painel de Formulário ---
         JPanel formPanel = new JPanel(new GridLayout(0, 4, 15, 10));
         UIStyle.estilizarPainel(formPanel);
 
@@ -78,20 +78,27 @@ public class ProdutoFrame extends JFrame {
         formPanel.add(descricaoField);
         formPanel.add(new JLabel("Preço (R$):"));
         formPanel.add(precoField);
+        formPanel.add(new JLabel("Tipo:"));
+        formPanel.add(tipoProdutoComboBox);
+        formPanel.add(new JLabel("Marca:"));
+        formPanel.add(marcaField);
+        formPanel.add(new JLabel("Fornecedor:"));
+        formPanel.add(fornecedorField);
+        formPanel.add(new JLabel("Referência:"));
+        formPanel.add(referenciaField);
+        formPanel.add(new JLabel("Categoria:"));
+        formPanel.add(categoriaField);
         formPanel.add(new JLabel("Criado Em:"));
         formPanel.add(createdAtField);
         formPanel.add(new JLabel("Atualizado Em:"));
         formPanel.add(updatedAtField);
 
-        UIStyle.estilizarCampoDeTexto(idField);
-        UIStyle.estilizarCampoDeTexto(nomeField);
-        UIStyle.estilizarCampoDeTexto(descricaoField);
-        UIStyle.estilizarCampoDeTexto(precoField);
-        UIStyle.estilizarCampoDeTexto(createdAtField);
-        UIStyle.estilizarCampoDeTexto(updatedAtField);
+        Arrays.asList(idField, nomeField, descricaoField, precoField, marcaField, fornecedorField, referenciaField, categoriaField, createdAtField, updatedAtField)
+                .forEach(UIStyle::estilizarCampoDeTexto);
+        UIStyle.estilizarComboBox(tipoProdutoComboBox);
+
         southPanel.add(formPanel, BorderLayout.CENTER);
 
-        // --- Painel de Botões ---
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setOpaque(false);
 
@@ -113,7 +120,6 @@ public class ProdutoFrame extends JFrame {
 
         add(southPanel, BorderLayout.SOUTH);
 
-        // Listeners
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
                 preencherFormularioComLinhaSelecionada();
@@ -132,12 +138,17 @@ public class ProdutoFrame extends JFrame {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) return;
 
-        idField.setText(tableModel.getValueAt(selectedRow, 0).toString());
-        nomeField.setText(tableModel.getValueAt(selectedRow, 1).toString());
-        descricaoField.setText(tableModel.getValueAt(selectedRow, 2).toString());
-        precoField.setText(tableModel.getValueAt(selectedRow, 3).toString());
-        createdAtField.setText(tableModel.getValueAt(selectedRow, 4).toString());
-        updatedAtField.setText(tableModel.getValueAt(selectedRow, 5).toString());
+        idField.setText(safeToString(tableModel.getValueAt(selectedRow, 0)));
+        nomeField.setText(safeToString(tableModel.getValueAt(selectedRow, 1)));
+        descricaoField.setText(safeToString(tableModel.getValueAt(selectedRow, 2)));
+        precoField.setText(safeToString(tableModel.getValueAt(selectedRow, 3)));
+        tipoProdutoComboBox.setSelectedItem(tableModel.getValueAt(selectedRow, 4));
+        marcaField.setText(safeToString(tableModel.getValueAt(selectedRow, 5)));
+        fornecedorField.setText(safeToString(tableModel.getValueAt(selectedRow, 6)));
+        referenciaField.setText(safeToString(tableModel.getValueAt(selectedRow, 7)));
+        categoriaField.setText(safeToString(tableModel.getValueAt(selectedRow, 8)));
+        createdAtField.setText(safeToString(tableModel.getValueAt(selectedRow, 9)));
+        updatedAtField.setText(safeToString(tableModel.getValueAt(selectedRow, 10)));
     }
 
     private void limparFormulario() {
@@ -145,30 +156,40 @@ public class ProdutoFrame extends JFrame {
         nomeField.setText("");
         descricaoField.setText("");
         precoField.setText("");
+        tipoProdutoComboBox.setSelectedIndex(0);
+        marcaField.setText("");
+        fornecedorField.setText("");
+        referenciaField.setText("");
+        categoriaField.setText("");
         createdAtField.setText("");
         updatedAtField.setText("");
         table.clearSelection();
-        resetBorders(); // Resetar bordas
+        resetBorders();
     }
 
     private void atualizarTabela() {
         AsyncTaskExecutor.execute(
-                this, // Componente pai para o dialog de carregamento
-                () -> produtoService.listarTodos(), // Tarefa em background
-                produtos -> { // Callback de sucesso
-                    tableModel.setRowCount(0); // Limpa a tabela
+                this,
+                produtoService::listarTodos,
+                produtos -> {
+                    tableModel.setRowCount(0);
                     for (Produto p : produtos) {
                         tableModel.addRow(new Object[]{
                                 p.getId(),
                                 p.getNome(),
                                 p.getDescricao(),
                                 p.getPreco(),
+                                p.getTipoProduto(),
+                                p.getMarca(),
+                                p.getFornecedor(),
+                                p.getReferencia(),
+                                p.getCategoria(),
                                 p.getCreatedAt() != null ? p.getCreatedAt().format(dateTimeFormatter) : "",
                                 p.getUpdatedAt() != null ? p.getUpdatedAt().format(dateTimeFormatter) : ""
                         });
                     }
                 },
-                erro -> { // Callback de erro
+                erro -> {
                     JOptionPane.showMessageDialog(this, "Erro ao buscar produtos: " + erro.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
                     erro.printStackTrace();
                 }
@@ -176,31 +197,45 @@ public class ProdutoFrame extends JFrame {
     }
 
     private void salvarProduto() {
-        resetBorders(); // Resetar bordas antes de validar
+        resetBorders();
 
         String nome = nomeField.getText();
         String descricao = descricaoField.getText();
         String precoStr = precoField.getText();
+        TipoProduto tipoProduto = (TipoProduto) tipoProdutoComboBox.getSelectedItem();
+        String marca = marcaField.getText();
+        String fornecedor = fornecedorField.getText();
+        String referencia = referenciaField.getText();
+        String categoria = categoriaField.getText();
 
         try {
             ValidationUtil.validarCampoObrigatorio(nome, "Nome");
             ValidationUtil.validarCampoObrigatorio(descricao, "Descrição");
             ValidationUtil.validarValorMonetario(precoStr, "Preço");
+            ValidationUtil.validarCampoObrigatorio(marca, "Marca");
+            ValidationUtil.validarCampoObrigatorio(fornecedor, "Fornecedor");
 
             BigDecimal preco = new BigDecimal(precoStr.replace(',', '.'));
 
-            Produto produto = new Produto(null, nome, descricao, preco, null, null); // ID, createdAt, updatedAt serão definidos pelo backend
+            Produto produto = new Produto();
+            produto.setNome(nome);
+            produto.setDescricao(descricao);
+            produto.setPreco(preco);
+            produto.setTipoProduto(tipoProduto);
+            produto.setMarca(marca);
+            produto.setFornecedor(fornecedor);
+            produto.setReferencia(referencia);
+            produto.setCategoria(categoria);
 
             String idText = idField.getText();
-            if (!idText.isEmpty()) { // Se o ID não estiver vazio, é uma atualização
-                Long id = Long.parseLong(idText);
-                produto.setId(id); // Garante que o ID esteja no objeto para a atualização
+            if (!idText.isEmpty()) {
+                produto.setId(Long.parseLong(idText));
             }
 
             AsyncTaskExecutor.execute(
                     this,
                     () -> {
-                        if (idText.isEmpty()) {
+                        if (produto.getId() == null) {
                             return produtoService.criar(produto);
                         } else {
                             return produtoService.atualizar(produto.getId(), produto);
@@ -219,9 +254,9 @@ public class ProdutoFrame extends JFrame {
 
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Erro de Validação", JOptionPane.WARNING_MESSAGE);
-            highlightField(e.getMessage()); // Tenta destacar o campo com erro
-        } catch (Exception e) { // Este catch agora captura NumberFormatException e outras exceções
-            JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + e.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
+            highlightField(e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
@@ -242,9 +277,7 @@ public class ProdutoFrame extends JFrame {
 
         AsyncTaskExecutor.execute(
                 this,
-                () -> {
-                    return produtoService.deletar(id);
-                },
+                () -> produtoService.deletar(id),
                 sucesso -> {
                     JOptionPane.showMessageDialog(this, "Produto deletado com sucesso!");
                     limparFormulario();
@@ -265,23 +298,30 @@ public class ProdutoFrame extends JFrame {
         }
     }
 
-    // Métodos auxiliares para destaque de campos
     private void highlightField(String errorMessage) {
         if (errorMessage.contains("Nome")) nomeField.setBorder(BorderFactory.createLineBorder(Color.RED));
         else if (errorMessage.contains("Descrição")) descricaoField.setBorder(BorderFactory.createLineBorder(Color.RED));
         else if (errorMessage.contains("Preço")) precoField.setBorder(BorderFactory.createLineBorder(Color.RED));
+        else if (errorMessage.contains("Marca")) marcaField.setBorder(BorderFactory.createLineBorder(Color.RED));
+        else if (errorMessage.contains("Fornecedor")) fornecedorField.setBorder(BorderFactory.createLineBorder(Color.RED));
     }
 
     private void resetBorders() {
         nomeField.setBorder(defaultBorder);
         descricaoField.setBorder(defaultBorder);
         precoField.setBorder(defaultBorder);
+        marcaField.setBorder(defaultBorder);
+        fornecedorField.setBorder(defaultBorder);
+    }
+
+    private String safeToString(Object obj) {
+        return obj != null ? obj.toString() : "";
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+                UIManager.setLookAndFeel(new FlatLightLaf());
             } catch (UnsupportedLookAndFeelException e) {
                 e.printStackTrace();
             }

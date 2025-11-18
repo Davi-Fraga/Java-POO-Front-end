@@ -1,11 +1,11 @@
 package br.com.service;
 
 import br.com.model.Produto;
-// import br.com.model.enums.TipoProduto; // Removido: TipoProduto não faz parte do modelo Produto
+import br.com.model.enums.TipoProduto;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime; // Importar LocalDateTime
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,11 +17,9 @@ public class ProdutoApiServiceMock implements IProdutoService {
 
     public ProdutoApiServiceMock() {
         // Dados iniciais para teste
-        // Corrigido: Chamadas ao construtor de Produto para corresponder à assinatura de 6 argumentos
-        // public Produto(Long id, String nome, String descricao, BigDecimal preco, LocalDateTime createdAt, LocalDateTime updatedAt)
-        produtos.add(new Produto(nextId++, "Gasolina Comum", "Combustível de alta octanagem", new BigDecimal("5.89"), LocalDateTime.now(), LocalDateTime.now()));
-        produtos.add(new Produto(nextId++, "Óleo Motor 5W30", "Óleo sintético para motores", new BigDecimal("45.50"), LocalDateTime.now(), LocalDateTime.now()));
-        produtos.add(new Produto(nextId++, "Pneu Aro 15", "Pneu radial para carros de passeio", new BigDecimal("350.00"), LocalDateTime.now(), LocalDateTime.now()));
+        produtos.add(new Produto(nextId++, "Gasolina Comum", "Combustível de alta octanagem", new BigDecimal("5.89"), LocalDateTime.now(), LocalDateTime.now(), TipoProduto.COMBUSTIVEL, "Petrobras", "Posto Ipiranga", "GAS-001", "Combustíveis"));
+        produtos.add(new Produto(nextId++, "Óleo Motor 5W30", "Óleo sintético para motores", new BigDecimal("45.50"), LocalDateTime.now(), LocalDateTime.now(), TipoProduto.OLEO, "Mobil", "Auto Peças Central", "OLEO-5W30", "Lubrificantes"));
+        produtos.add(new Produto(nextId++, "Pneu Aro 15", "Pneu radial para carros de passeio", new BigDecimal("350.00"), LocalDateTime.now(), LocalDateTime.now(), TipoProduto.PNEU, "Pirelli", "Borracharia do Zé", "PNEU-175-65-R15", "Pneus"));
     }
 
     @Override

@@ -1,31 +1,36 @@
 package br.com.view;
 
 import br.com.model.Preco;
-import br.com.service.PrecoService; // Usar o serviço real
-import br.com.service.IPrecoService; // Manter a interface para flexibilidade
+import br.com.model.enums.TipoPreco; // Importar o enum TipoPreco
+import br.com.service.PrecoService;
+import br.com.service.IPrecoService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class PrecoFrame extends JFrame {
 
-    // Mudar para o serviço real
-    private final PrecoService precoService; // Alterado de IPrecoService para PrecoService
+    private final PrecoService precoService;
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField idField = new JTextField(5);
     private final JTextField valorField = new JTextField(10);
-    private final JTextField dataHoraField = new JTextField(20);
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    // Campos de data e hora agora serão apenas para exibição, não para entrada direta
+    private final JTextField dataAlteracaoField = new JTextField(10);
+    private final JTextField horaAlteracaoField = new JTextField(10);
+    private final JComboBox<TipoPreco> tipoPrecoComboBox = new JComboBox<>(TipoPreco.values()); // Novo JComboBox
+
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss"); // HH:mm:ss
 
     public PrecoFrame() {
-        // Instanciar o serviço real
-        this.precoService = new PrecoService(); // Alterado de PrecoApiServiceMock() para PrecoService()
+        this.precoService = new PrecoService();
 
         setTitle("Gerenciamento de Preços");
         setSize(900, 700);
@@ -36,7 +41,8 @@ public class PrecoFrame extends JFrame {
         getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Tabela
-        String[] columnNames = {"ID", "Valor (R$)", "Data/Hora Alteração"};
+        // Colunas atualizadas para refletir o novo modelo
+        String[] columnNames = {"ID", "Valor (R$)", "Data Alteração", "Hora Alteração", "Tipo"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
         UIStyle.estilizarTabela(table);
@@ -52,24 +58,39 @@ public class PrecoFrame extends JFrame {
         JPanel formPanel = new JPanel(new GridLayout(0, 4, 15, 10));
         UIStyle.estilizarPainel(formPanel);
         idField.setEditable(false);
-        dataHoraField.setEditable(false);
+        dataAlteracaoField.setEditable(false); // Apenas para exibição
+        horaAlteracaoField.setEditable(false); // Apenas para exibição
 
         JLabel idLabel = new JLabel("ID:");
         idLabel.setForeground(UIStyle.TEXTO_NORMAL);
         formPanel.add(idLabel);
         formPanel.add(idField);
+
         JLabel valorLabel = new JLabel("Valor (R$):");
         valorLabel.setForeground(UIStyle.TEXTO_NORMAL);
         formPanel.add(valorLabel);
         formPanel.add(valorField);
-        JLabel dataHoraLabel = new JLabel("Última Alteração:");
-        dataHoraLabel.setForeground(UIStyle.TEXTO_NORMAL);
-        formPanel.add(dataHoraLabel);
-        formPanel.add(dataHoraField);
+
+        JLabel dataAlteracaoLabel = new JLabel("Data Alteração:");
+        dataAlteracaoLabel.setForeground(UIStyle.TEXTO_NORMAL);
+        formPanel.add(dataAlteracaoLabel);
+        formPanel.add(dataAlteracaoField);
+
+        JLabel horaAlteracaoLabel = new JLabel("Hora Alteração:");
+        horaAlteracaoLabel.setForeground(UIStyle.TEXTO_NORMAL);
+        formPanel.add(horaAlteracaoLabel);
+        formPanel.add(horaAlteracaoField);
+
+        JLabel tipoPrecoLabel = new JLabel("Tipo de Preço:"); // Novo label
+        tipoPrecoLabel.setForeground(UIStyle.TEXTO_NORMAL);
+        formPanel.add(tipoPrecoLabel);
+        formPanel.add(tipoPrecoComboBox); // Novo campo
 
         UIStyle.estilizarCampoDeTexto(idField);
         UIStyle.estilizarCampoDeTexto(valorField);
-        UIStyle.estilizarCampoDeTexto(dataHoraField);
+        UIStyle.estilizarCampoDeTexto(dataAlteracaoField);
+        UIStyle.estilizarCampoDeTexto(horaAlteracaoField);
+        UIStyle.estilizarComboBox(tipoPrecoComboBox); // Estilizar o novo JComboBox
         southPanel.add(formPanel, BorderLayout.CENTER);
 
         // Painel de botões
@@ -110,49 +131,80 @@ public class PrecoFrame extends JFrame {
 
         idField.setText(tableModel.getValueAt(selectedRow, 0).toString());
         valorField.setText(tableModel.getValueAt(selectedRow, 1).toString());
-        dataHoraField.setText(tableModel.getValueAt(selectedRow, 2).toString());
+        dataAlteracaoField.setText(tableModel.getValueAt(selectedRow, 2).toString());
+        horaAlteracaoField.setText(tableModel.getValueAt(selectedRow, 3).toString());
+
+        Object tipoPrecoObj = tableModel.getValueAt(selectedRow, 4);
+        if (tipoPrecoObj instanceof TipoPreco) {
+            tipoPrecoComboBox.setSelectedItem(tipoPrecoObj);
+        } else if (tipoPrecoObj != null) {
+            try {
+                tipoPrecoComboBox.setSelectedItem(TipoPreco.valueOf(tipoPrecoObj.toString()));
+            } catch (IllegalArgumentException ex) {
+                System.err.println("TipoPreco inválido na tabela: " + tipoPrecoObj);
+            }
+        }
     }
 
     private void limparFormulario() {
         idField.setText("");
         valorField.setText("");
-        dataHoraField.setText("");
+        dataAlteracaoField.setText("");
+        horaAlteracaoField.setText("");
+        tipoPrecoComboBox.setSelectedIndex(0); // Limpa a seleção do JComboBox
         table.clearSelection();
     }
 
     private void atualizarTabela() {
         try {
-            // Ligar o GET: Chamar o serviço real
-            List<Preco> precos = precoService.listarTodos(); // Alterado de listarPrecos() para listarTodos()
-            tableModel.setRowCount(0); // Limpa a tabela
+            List<Preco> precos = precoService.listarTodos();
+            tableModel.setRowCount(0);
             for (Preco p : precos) {
+                String dataFormatada = (p.getDataAlteracao() != null) ?
+                                        p.getDataAlteracao().format(dateFormatter) :
+                                        "N/A";
+                String horaFormatada = (p.getHoraAlteracao() != null) ?
+                                        p.getHoraAlteracao().format(timeFormatter) :
+                                        "N/A";
+                String tipoPrecoDisplay = (p.getTipoPreco() != null) ?
+                                            p.getTipoPreco().toString() :
+                                            "N/A";
+
                 tableModel.addRow(new Object[]{
                         p.getId(),
                         p.getValor(),
-                        p.getDataHoraAlteracao().format(dateTimeFormatter)
+                        dataFormatada,
+                        horaFormatada,
+                        tipoPrecoDisplay // Adiciona o tipo de preço
                 });
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao buscar preços: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace(); // Para depuração
+            e.printStackTrace();
         }
     }
 
     private void salvarPreco() {
         try {
-            BigDecimal valor = new BigDecimal(valorField.getText().replace(",", ".")); // Garantir formato correto
+            BigDecimal valor = new BigDecimal(valorField.getText().replace(",", "."));
 
-            // Data/Hora será definida pelo backend, não precisamos enviar
-            Preco preco = new Preco(null, valor, null);
+            // Obter data e hora atuais
+            LocalDate dataAtual = LocalDate.now();
+            LocalTime horaAtual = LocalTime.now();
+            // Obter tipo de preço selecionado
+            TipoPreco tipoPrecoSelecionado = (TipoPreco) tipoPrecoComboBox.getSelectedItem();
+
+            // Criar objeto Preco com os novos campos
+            Preco preco = new Preco(null, valor, dataAtual, horaAtual, tipoPrecoSelecionado);
 
             String idText = idField.getText();
             if (idText.isEmpty()) { // Criar novo
-                precoService.criar(preco); // Chamar o método criar do serviço real
+                precoService.criar(preco);
                 JOptionPane.showMessageDialog(this, "Preço criado com sucesso!");
             } else { // Atualizar existente
                 Long id = Long.parseLong(idText);
-                preco.setId(id); // Definir o ID para a atualização
-                precoService.atualizar(preco); // Chamar o método atualizar do serviço real
+                preco.setId(id);
+                precoService.atualizar(preco);
                 JOptionPane.showMessageDialog(this, "Preço atualizado com sucesso!");
             }
 
@@ -182,7 +234,7 @@ public class PrecoFrame extends JFrame {
 
         try {
             Long id = Long.parseLong(idText);
-            precoService.deletar(id); // Chamar o método deletar do serviço real
+            precoService.deletar(id);
             JOptionPane.showMessageDialog(this, "Preço deletado com sucesso!");
             limparFormulario();
             atualizarTabela();
@@ -197,7 +249,6 @@ public class PrecoFrame extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // Garante que o Look and Feel seja aplicado antes de criar a janela
             try {
                 UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
             } catch (UnsupportedLookAndFeelException e) {

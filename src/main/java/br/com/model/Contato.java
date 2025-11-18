@@ -2,6 +2,7 @@ package br.com.model;
 
 import br.com.model.enums.TipoContato; // Importar o enum TipoContato
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty; // Importar JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Contato {
@@ -11,18 +12,31 @@ public class Contato {
     private String telefone;
     private String email;
     private String endereco;
+    @JsonProperty("pessoaId") // Adicionar esta anotação para mapeamento JSON
+    private Long pessoaId; // NOVO CAMPO: ID da pessoa associada
 
     // Construtor padrão (necessário para desserialização do Jackson)
     public Contato() {
     }
 
-    // Construtor com todos os campos
+    // Construtor com todos os campos (original)
     public Contato(Long id, TipoContato tipoContato, String telefone, String email, String endereco) {
         this.id = id;
         this.tipoContato = tipoContato;
         this.telefone = telefone;
         this.email = email;
         this.endereco = endereco;
+        // pessoaId não é inicializado aqui, será nulo por padrão
+    }
+
+    // NOVO Construtor com todos os campos, incluindo pessoaId
+    public Contato(Long id, TipoContato tipoContato, String telefone, String email, String endereco, Long pessoaId) {
+        this.id = id;
+        this.tipoContato = tipoContato;
+        this.telefone = telefone;
+        this.email = email;
+        this.endereco = endereco;
+        this.pessoaId = pessoaId;
     }
 
     // Getters
@@ -46,6 +60,10 @@ public class Contato {
         return endereco;
     }
 
+    public Long getPessoaId() { // NOVO GETTER
+        return pessoaId;
+    }
+
     // Setters
     public void setId(Long id) {
         this.id = id;
@@ -67,6 +85,10 @@ public class Contato {
         this.endereco = endereco;
     }
 
+    public void setPessoaId(Long pessoaId) { // NOVO SETTER
+        this.pessoaId = pessoaId;
+    }
+
     @Override
     public String toString() {
         return "Contato{" +
@@ -75,6 +97,7 @@ public class Contato {
                ", telefone='" + telefone + '\'' +
                ", email='" + email + '\'' +
                ", endereco='" + endereco + '\'' +
+               ", pessoaId=" + pessoaId + // Incluir pessoaId no toString
                '}';
     }
 }

@@ -5,10 +5,10 @@ import br.com.model.enums.TipoPessoa;
 import br.com.service.PessoaService;
 import br.com.util.AsyncTaskExecutor;
 import br.com.util.PaginatedResponse;
-import br.com.util.ValidationUtil; // Importar ValidationUtil
+import br.com.util.ValidationUtil;
 
 import javax.swing.*;
-import javax.swing.border.Border; // Importar Border
+import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
@@ -24,39 +24,35 @@ public class PessoaFrame extends JFrame {
     private final JTextField idField = new JTextField(5);
     private final JTextField nomeField = new JTextField(20);
     private final JTextField cpfCnpjField = new JTextField(15);
-    private final JTextField ctpsField = new JTextField(10); // Este campo não tem correspondência direta no modelo Pessoa
+    private final JTextField ctpsField = new JTextField(10);
     private final JTextField dataNascimentoField = new JTextField(10);
     private final JComboBox<TipoPessoa> tipoPessoaComboBox = new JComboBox<>(TipoPessoa.values());
-    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    // Campos para Paginação
     private int currentPage = 0;
-    private final int pageSize = 10; // Tamanho fixo da página
-    private JLabel pageInfoLabel = new JLabel("Página 1 de 1");
-    private JButton prevPageButton = new JButton("Anterior");
-    private JButton nextPageButton = new JButton("Próxima");
+    private final int pageSize = 10;
+    private final JLabel pageInfoLabel = new JLabel("Página 1 de 1");
+    private final JButton prevPageButton = new JButton("Anterior");
+    private final JButton nextPageButton = new JButton("Próxima");
 
-    // Campo para Busca
-    private JTextField searchCpfCnpjField = new JTextField(15);
-    private JButton searchButton = new JButton("Buscar CPF/CNPJ");
-    private JButton clearSearchButton = new JButton("Limpar Busca");
+    private final JTextField searchCpfCnpjField = new JTextField(15);
+    private final JButton searchButton = new JButton("Buscar CPF/CNPJ");
+    private final JButton clearSearchButton = new JButton("Limpar Busca");
 
-    // Borda padrão para resetar
     private final Border defaultBorder = new JTextField().getBorder();
-
 
     public PessoaFrame() {
         this.pessoaService = new PessoaService();
 
         setTitle("Gerenciamento de Pessoas");
-        setSize(1000, 700); // Aumentar o tamanho para acomodar novos elementos
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(UIStyle.FUNDO_JANELA);
         setLayout(new BorderLayout(10, 10));
         getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // --- Tabela ---
+        // Tabela
         String[] columnNames = {"ID", "Nome", "CPF/CNPJ", "CTPS", "Nascimento", "Tipo"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -70,7 +66,7 @@ public class PessoaFrame extends JFrame {
         scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDA_SUTIL));
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- Painel Norte para Busca ---
+        // Painel Norte para Busca
         JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         UIStyle.estilizarPainel(northPanel);
         northPanel.add(new JLabel("Buscar por CPF/CNPJ:"));
@@ -82,12 +78,11 @@ public class PessoaFrame extends JFrame {
         UIStyle.estilizarBotaoSecundario(clearSearchButton);
         add(northPanel, BorderLayout.NORTH);
 
-
-        // --- Painel Sul com Formulário e Botões ---
+        // Painel Sul com Formulário e Botões
         JPanel southPanel = new JPanel(new BorderLayout(10, 10));
         southPanel.setOpaque(false);
 
-        // --- Painel de Formulário ---
+        // Painel de Formulário
         JPanel formPanel = new JPanel(new GridLayout(0, 4, 15, 10));
         UIStyle.estilizarPainel(formPanel);
 
@@ -100,7 +95,7 @@ public class PessoaFrame extends JFrame {
         formPanel.add(cpfCnpjField);
         formPanel.add(new JLabel("Nº CTPS:"));
         formPanel.add(ctpsField);
-        formPanel.add(new JLabel("Data Nascimento (yyyy-MM-dd):"));
+        formPanel.add(new JLabel("Data Nascimento (dd/MM/yyyy):"));
         formPanel.add(dataNascimentoField);
         formPanel.add(new JLabel("Tipo Pessoa:"));
         formPanel.add(tipoPessoaComboBox);
@@ -113,7 +108,7 @@ public class PessoaFrame extends JFrame {
         UIStyle.estilizarComboBox(tipoPessoaComboBox);
         southPanel.add(formPanel, BorderLayout.CENTER);
 
-        // --- Painel de Botões e Paginação ---
+        // Painel de Botões e Paginação
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
 
@@ -123,7 +118,7 @@ public class PessoaFrame extends JFrame {
         JButton novoButton = new JButton("Novo");
         JButton salvarButton = new JButton("Salvar");
         JButton deletarButton = new JButton("Deletar");
-        JButton editarButton = new JButton("Editar"); // Adicionado botão Editar
+        JButton editarButton = new JButton("Editar");
 
         UIStyle.estilizarBotaoPrimario(salvarButton);
         UIStyle.estilizarBotaoSecundario(novoButton);
@@ -131,7 +126,7 @@ public class PessoaFrame extends JFrame {
         UIStyle.estilizarBotaoSecundario(editarButton);
 
         buttonPanel.add(novoButton);
-        buttonPanel.add(editarButton); // Adicionado botão Editar
+        buttonPanel.add(editarButton);
         buttonPanel.add(deletarButton);
         buttonPanel.add(salvarButton);
         bottomPanel.add(buttonPanel, BorderLayout.EAST);
@@ -147,7 +142,6 @@ public class PessoaFrame extends JFrame {
         bottomPanel.add(paginationPanel, BorderLayout.WEST);
 
         southPanel.add(bottomPanel, BorderLayout.SOUTH);
-
         add(southPanel, BorderLayout.SOUTH);
 
         // Listeners
@@ -160,9 +154,8 @@ public class PessoaFrame extends JFrame {
         novoButton.addActionListener(e -> limparFormulario());
         salvarButton.addActionListener(e -> salvarPessoa());
         deletarButton.addActionListener(e -> deletarPessoa());
-        editarButton.addActionListener(e -> editarPessoa()); // Listener para o botão Editar
+        editarButton.addActionListener(e -> editarPessoa());
 
-        // Listeners de Paginação
         prevPageButton.addActionListener(e -> {
             if (currentPage > 0) {
                 currentPage--;
@@ -170,40 +163,65 @@ public class PessoaFrame extends JFrame {
             }
         });
         nextPageButton.addActionListener(e -> {
-            currentPage++; // A lógica para verificar se há próxima página será no atualizarTabela
+            currentPage++;
             atualizarTabela();
         });
 
-        // Listeners de Busca
         searchButton.addActionListener(e -> buscarPessoaPorCpfCnpj());
         clearSearchButton.addActionListener(e -> {
             searchCpfCnpjField.setText("");
-            atualizarTabela(); // Recarrega a tabela sem filtro
+            atualizarTabela();
         });
 
-
-        atualizarTabela(); // Carrega a tabela inicialmente
+        atualizarTabela();
     }
 
     private void preencherFormularioComLinhaSelecionada() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) return;
 
-        idField.setText(tableModel.getValueAt(selectedRow, 0).toString());
-        nomeField.setText(tableModel.getValueAt(selectedRow, 1).toString());
-        cpfCnpjField.setText(tableModel.getValueAt(selectedRow, 2).toString());
-        ctpsField.setText(tableModel.getValueAt(selectedRow, 3) != null ? tableModel.getValueAt(selectedRow, 3).toString() : "");
-        dataNascimentoField.setText(tableModel.getValueAt(selectedRow, 4).toString());
+        // Variável para reutilização
+        Object value;
 
-        Object tipoPessoaObj = tableModel.getValueAt(selectedRow, 5);
-        if (tipoPessoaObj instanceof TipoPessoa) {
-            tipoPessoaComboBox.setSelectedItem(tipoPessoaObj);
-        } else if (tipoPessoaObj != null) { // Tenta converter String para TipoPessoa
+        // ID (Coluna 0)
+        value = tableModel.getValueAt(selectedRow, 0);
+        idField.setText(value != null ? value.toString() : "");
+
+        // Nome (Coluna 1)
+        value = tableModel.getValueAt(selectedRow, 1);
+        nomeField.setText(value != null ? value.toString() : "");
+
+        // CPF/CNPJ (Coluna 2)
+        value = tableModel.getValueAt(selectedRow, 2);
+        cpfCnpjField.setText(value != null ? value.toString() : "");
+
+        // CTPS (Coluna 3)
+        value = tableModel.getValueAt(selectedRow, 3);
+        ctpsField.setText(value != null ? value.toString() : "");
+
+        // Data de Nascimento (Coluna 4)
+        value = tableModel.getValueAt(selectedRow, 4);
+        if (value instanceof LocalDate) {
+            dataNascimentoField.setText(((LocalDate) value).format(dateFormatter));
+        } else if (value != null) {
+            dataNascimentoField.setText(value.toString());
+        } else {
+            dataNascimentoField.setText("");
+        }
+
+        // Tipo Pessoa (Coluna 5)
+        value = tableModel.getValueAt(selectedRow, 5);
+        if (value instanceof TipoPessoa) {
+            tipoPessoaComboBox.setSelectedItem(value);
+        } else if (value != null) {
             try {
-                tipoPessoaComboBox.setSelectedItem(TipoPessoa.valueOf(tipoPessoaObj.toString()));
+                tipoPessoaComboBox.setSelectedItem(TipoPessoa.valueOf(value.toString()));
             } catch (IllegalArgumentException ex) {
-                System.err.println("TipoPessoa inválido na tabela: " + tipoPessoaObj);
+                System.err.println("TipoPessoa inválido na tabela: " + value);
+                tipoPessoaComboBox.setSelectedIndex(-1); // Reseta a seleção se for inválido
             }
+        } else {
+            tipoPessoaComboBox.setSelectedIndex(-1); // Reseta a seleção se for nulo
         }
     }
 
@@ -215,37 +233,38 @@ public class PessoaFrame extends JFrame {
         dataNascimentoField.setText("");
         tipoPessoaComboBox.setSelectedIndex(0);
         table.clearSelection();
-        resetBorders(); // Resetar bordas após limpar
+        resetBorders();
     }
 
     private void atualizarTabela() {
         AsyncTaskExecutor.execute(
                 this,
                 () -> {
-                    String searchDoc = searchCpfCnpjField.getText().trim();
-                    if (!searchDoc.isEmpty()) {
-                        return pessoaService.buscarPorCpfCnpj(searchDoc);
-                    } else {
-                        // Chamar listarComPaginacao e obter o conteúdo
-                        PaginatedResponse<Pessoa> response = pessoaService.listarComPaginacao(currentPage, pageSize);
-                        SwingUtilities.invokeLater(() -> {
-                            pageInfoLabel.setText("Página " + (response.getPage() + 1) + " de " + response.getTotalPages());
-                            prevPageButton.setEnabled(!response.isFirst());
-                            nextPageButton.setEnabled(!response.isLast());
-                        });
-                        return response.getContent();
+                    try {
+                        String searchDoc = searchCpfCnpjField.getText().trim();
+                        if (!searchDoc.isEmpty()) {
+                            return pessoaService.buscarPorCpfCnpj(searchDoc);
+                        } else {
+                            PaginatedResponse<Pessoa> response = pessoaService.listarComPaginacao(currentPage, pageSize);
+                            SwingUtilities.invokeLater(() -> {
+                                pageInfoLabel.setText("Página " + (response.getPage() + 1) + " de " + response.getTotalPages());
+                                prevPageButton.setEnabled(!response.isFirst());
+                                nextPageButton.setEnabled(!response.isLast());
+                            });
+                            return response.getContent();
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
                 },
                 pessoas -> {
-                    tableModel.setRowCount(0); // Limpa a tabela
+                    tableModel.setRowCount(0);
                     for (Pessoa p : pessoas) {
                         tableModel.addRow(new Object[]{
                                 p.getId(),
                                 p.getNome(),
                                 p.getCpfCnpj(),
-                                // p.getNumeroCtps(), // REMOVIDO: Não existe no modelo Pessoa
-                                // Como o campo CTPS existe na UI, vamos preencher com o CPF/CNPJ ou deixar vazio se não houver um campo específico para CTPS no modelo
-                                p.getCpfCnpj(), // Usando CPF/CNPJ temporariamente para preencher a coluna CTPS na tabela
+                                p.getCpfCnpj(), // Usando CPF/CNPJ temporariamente para CTPS
                                 p.getDataNascimento(),
                                 p.getTipoPessoa()
                         });
@@ -264,69 +283,66 @@ public class PessoaFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Digite um CPF/CNPJ para buscar.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        currentPage = 0; // Resetar paginação ao buscar
-        atualizarTabela(); // O método atualizarTabela já lida com a lógica de busca
+        currentPage = 0;
+        atualizarTabela();
     }
 
     private void salvarPessoa() {
-        resetBorders(); // Resetar bordas antes de validar
-
-        String nome = nomeField.getText();
-        String cpfCnpj = cpfCnpjField.getText();
-        String dataNascimentoStr = dataNascimentoField.getText();
+        // 1. Coleta dos dados da interface gráfica
+        String nomeCompleto = nomeField.getText().trim();
+        String cpfCnpj = cpfCnpjField.getText().trim();
+        String dataNascimentoStr = dataNascimentoField.getText().trim();
         TipoPessoa tipoPessoa = (TipoPessoa) tipoPessoaComboBox.getSelectedItem();
 
+        // 2. Validação dos campos obrigatórios
+        if (nomeCompleto.isEmpty() || cpfCnpj.isEmpty() || dataNascimentoStr.isEmpty() || tipoPessoa == null) {
+            JOptionPane.showMessageDialog(this, "Todos os campos obrigatórios (Nome, CPF/CNPJ, Data de Nascimento, Tipo) devem ser preenchidos.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try {
-            ValidationUtil.validarCampoObrigatorio(nome, "Nome");
-            ValidationUtil.validarCampoObrigatorio(cpfCnpj, "CPF/CNPJ");
-            if (tipoPessoa == TipoPessoa.FISICA) {
-                ValidationUtil.validarCPF(cpfCnpj);
-            } else if (tipoPessoa == TipoPessoa.JURIDICA) {
-                ValidationUtil.validarCNPJ(cpfCnpj);
-            }
-            ValidationUtil.validarCampoObrigatorio(dataNascimentoStr, "Data de Nascimento");
-            ValidationUtil.validarData(dataNascimentoStr, "Data de Nascimento", dateFormatter);
+            // 3. Conversão e construção do objeto Pessoa
+            Pessoa pessoa = new Pessoa();
+            pessoa.setNome(nomeCompleto);
+            pessoa.setCpfCnpj(cpfCnpj);
+            pessoa.setTipoPessoa(tipoPessoa);
 
             LocalDate dataNascimento = LocalDate.parse(dataNascimentoStr, dateFormatter);
-
-            Pessoa pessoa = new Pessoa(null, nome, cpfCnpj, dataNascimento, tipoPessoa);
+            pessoa.setDataNascimento(dataNascimento);
 
             String idText = idField.getText();
-            if (!idText.isEmpty()) { // Se o ID não estiver vazio, é uma atualização
-                Long id = Long.parseLong(idText); // Pode lançar NumberFormatException
-                pessoa.setId(id); // Definir o ID para a atualização
+            if (idText != null && !idText.isEmpty()) {
+                pessoa.setId(Long.parseLong(idText));
             }
 
+            // 4. Chamada assíncrona ao serviço para criar ou atualizar
             AsyncTaskExecutor.execute(
                     this,
                     () -> {
-                        if (idText.isEmpty()) {
-                            return pessoaService.criar(pessoa);
-                        } else {
-                            return pessoaService.atualizar(pessoa);
+                        try {
+                            if (pessoa.getId() == null) {
+                                return pessoaService.criar(pessoa);
+                            } else {
+                                return pessoaService.atualizar(pessoa);
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
                     },
                     resultado -> {
-                        JOptionPane.showMessageDialog(this, "Pessoa salva com sucesso!");
+                        JOptionPane.showMessageDialog(this, "Pessoa salva com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                         limparFormulario();
                         atualizarTabela();
                     },
-                    erro -> {
-                        JOptionPane.showMessageDialog(this, "Erro ao salvar pessoa: " + erro.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE);
-                        erro.printStackTrace();
-                    }
+                    erro -> JOptionPane.showMessageDialog(this, "Erro ao salvar pessoa: " + erro.getMessage(), "Erro de API", JOptionPane.ERROR_MESSAGE)
             );
 
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Erro de Validação", JOptionPane.WARNING_MESSAGE);
-            highlightField(e.getMessage()); // Tenta destacar o campo com erro
-        } catch (Exception e) { // Este catch agora captura NumberFormatException e outras exceções
-            String errorMessage = "Erro ao salvar pessoa: " + e.getMessage();
-            if (e.getCause() instanceof NumberFormatException) { // Verifica se a causa original foi NumberFormatException
-                errorMessage = "Erro de formato numérico para o ID. Por favor, insira um número válido.";
-            }
-            JOptionPane.showMessageDialog(this, errorMessage, "Erro de API", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(this, "Formato de Data de Nascimento inválido. Use o formato DD/MM/AAAA.", "Erro de Conversão", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "O ID fornecido é inválido.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocorreu um erro inesperado: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -342,12 +358,16 @@ public class PessoaFrame extends JFrame {
             return;
         }
 
-        Long id = Long.parseLong(idText); // Pode lançar NumberFormatException
+        Long id = Long.parseLong(idText);
 
         AsyncTaskExecutor.execute(
                 this,
                 () -> {
-                    return pessoaService.deletar(id);
+                    try {
+                        return pessoaService.deletar(id);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 },
                 sucesso -> {
                     JOptionPane.showMessageDialog(this, "Pessoa deletada com sucesso!");
@@ -356,7 +376,7 @@ public class PessoaFrame extends JFrame {
                 },
                 erro -> {
                     String errorMessage = "Erro ao deletar pessoa: " + erro.getMessage();
-                    if (erro.getCause() instanceof NumberFormatException) { // Verifica se a causa original foi NumberFormatException
+                    if (erro.getCause() instanceof NumberFormatException) {
                         errorMessage = "Erro de formato numérico para o ID. Por favor, insira um número válido.";
                     }
                     JOptionPane.showMessageDialog(this, errorMessage, "Erro de API", JOptionPane.ERROR_MESSAGE);
@@ -373,19 +393,16 @@ public class PessoaFrame extends JFrame {
         }
     }
 
-    // Métodos auxiliares para destaque de campos
     private void highlightField(String errorMessage) {
         if (errorMessage.contains("Nome")) nomeField.setBorder(BorderFactory.createLineBorder(Color.RED));
         else if (errorMessage.contains("CPF/CNPJ")) cpfCnpjField.setBorder(BorderFactory.createLineBorder(Color.RED));
         else if (errorMessage.contains("Data de Nascimento")) dataNascimentoField.setBorder(BorderFactory.createLineBorder(Color.RED));
-        // Adicione mais condições conforme necessário
     }
 
     private void resetBorders() {
         nomeField.setBorder(defaultBorder);
         cpfCnpjField.setBorder(defaultBorder);
         dataNascimentoField.setBorder(defaultBorder);
-        // Resetar bordas de outros campos se houver
     }
 
     public static void main(String[] args) {

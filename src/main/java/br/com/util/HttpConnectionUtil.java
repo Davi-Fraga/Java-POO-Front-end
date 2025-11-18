@@ -2,6 +2,7 @@ package br.com.util;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -18,20 +19,22 @@ public class HttpConnectionUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        // Configura o ObjectMapper para lidar com tipos de data e hora do Java 8
+        // 1. Habilita o módulo para lidar com os tipos de data e hora do Java 8
         objectMapper.registerModule(new JavaTimeModule());
-        // Opcional: Configurar para falhar em propriedades desconhecidas
+
+        // 2. Configuração para não falhar se o JSON tiver campos extras
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        // 3. Garante que enums sejam serializados como texto simples (ex: "EMAIL")
+        objectMapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+
+        // 4. Força a serialização de datas/horas para o formato de texto padrão ISO
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     /**
-     * Envia uma requisição GET e desserializa a resposta JSON para um único objeto do tipo especificado.
-     *
-     * @param endpoint O endpoint da API (ex: "/precos/1").
-     * @param responseType A classe do tipo de objeto esperado na resposta.
-     * @param <T> O tipo do objeto esperado.
-     * @return Um objeto do tipo T.
-     * @throws Exception Se ocorrer um erro na requisição ou desserialização.
+     * GET que desserializa a resposta para um único objeto.
      */
     public static <T> T sendGetRequest(String endpoint, Class<T> responseType) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
@@ -40,17 +43,17 @@ public class HttpConnectionUtil {
         connection.setRequestProperty("Accept", "application/json");
 
         String jsonResponse = readResponse(connection);
+
+        // Debug opcional para objeto único
+        System.out.println("========================================================");
+        System.out.println("DEBUG JSON RECEBIDO (" + responseType.getSimpleName() + "): " + jsonResponse);
+        System.out.println("========================================================");
+
         return objectMapper.readValue(jsonResponse, responseType);
     }
 
     /**
-     * Envia uma requisição GET e desserializa a resposta JSON para uma lista de objetos do tipo especificado.
-     *
-     * @param endpoint O endpoint da API (ex: "/precos").
-     * @param elementType A classe do tipo de elemento esperado na lista.
-     * @param <T> O tipo dos elementos na lista.
-     * @return Uma lista de objetos do tipo T.
-     * @throws Exception Se ocorrer um erro na requisição ou desserialização.
+     * GET que desserializa a resposta para uma lista de objetos.
      */
     public static <T> List<T> sendGetListRequest(String endpoint, Class<T> elementType) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
@@ -59,17 +62,21 @@ public class HttpConnectionUtil {
         connection.setRequestProperty("Accept", "application/json");
 
         String jsonResponse = readResponse(connection);
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, elementType);
+
+        // LOG IMPORTANTE: ver o JSON bruto recebido para listas (Pessoa, Contato, etc.)
+        System.out.println("========================================================");
+        System.out.println("DEBUG JSON RECEBIDO (LISTA " + elementType.getSimpleName() + "): " + jsonResponse);
+        System.out.println("========================================================");
+
+        CollectionType listType = objectMapper
+                .getTypeFactory()
+                .constructCollectionType(List.class, elementType);
+
         return objectMapper.readValue(jsonResponse, listType);
     }
 
     /**
-     * Envia uma requisição GET e retorna a resposta JSON bruta como String.
-     * Útil para desserialização de tipos genéricos complexos fora desta classe.
-     *
-     * @param endpoint O endpoint da API.
-     * @return A resposta JSON bruta como String.
-     * @throws Exception Se ocorrer um erro na requisição.
+     * GET que retorna a resposta bruta como String.
      */
     public static String sendGetRawResponse(String endpoint) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
@@ -81,12 +88,7 @@ public class HttpConnectionUtil {
     }
 
     /**
-     * Envia uma requisição POST com um corpo de requisição em JSON e retorna a resposta como String.
-     *
-     * @param endpoint O endpoint da API.
-     * @param requestBody O objeto Java a ser serializado para JSON e enviado no corpo da requisição.
-     * @return A resposta da API como String.
-     * @throws Exception Se ocorrer um erro na requisição ou serialização.
+     * POST com corpo JSON.
      */
     public static String sendPostRequest(String endpoint, Object requestBody) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
@@ -98,6 +100,11 @@ public class HttpConnectionUtil {
 
         String jsonInputString = objectMapper.writeValueAsString(requestBody);
 
+        // DEBUG: ver o JSON enviado
+        System.out.println("========================================================");
+        System.out.println("DEBUG JSON ENVIADO (BODY): " + jsonInputString);
+        System.out.println("========================================================");
+
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = jsonInputString.getBytes("utf-8");
             os.write(input, 0, input.length);
@@ -107,12 +114,7 @@ public class HttpConnectionUtil {
     }
 
     /**
-     * Envia uma requisição PUT com um corpo de requisição em JSON e retorna a resposta como String.
-     *
-     * @param endpoint O endpoint da API.
-     * @param requestBody O objeto Java a ser serializado para JSON e enviado no corpo da requisição.
-     * @return A resposta da API como String.
-     * @throws Exception Se ocorrer um erro na requisição ou serialização.
+     * PUT com corpo JSON.
      */
     public static String sendPutRequest(String endpoint, Object requestBody) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
@@ -133,19 +135,13 @@ public class HttpConnectionUtil {
     }
 
     /**
-     * Envia uma requisição PATCH com um corpo de requisição em JSON e retorna a resposta como String.
-     * Nota: HttpURLConnection não suporta PATCH diretamente. Usa POST com X-HTTP-Method-Override.
-     *
-     * @param endpoint O endpoint da API.
-     * @param requestBody O objeto Java a ser serializado para JSON e enviado no corpo da requisição.
-     * @return A resposta da API como String.
-     * @throws Exception Se ocorrer um erro na requisição ou serialização.
+     * PATCH com corpo JSON (via POST + X-HTTP-Method-Override).
      */
     public static String sendPatchRequest(String endpoint, Object requestBody) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
-        connection.setRequestMethod("POST"); // O método real enviado será POST
+        connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; utf-8");
         connection.setRequestProperty("Accept", "application/json");
         connection.setDoOutput(true);
@@ -161,50 +157,42 @@ public class HttpConnectionUtil {
     }
 
     /**
-     * Envia uma requisição DELETE e retorna a resposta como String.
-     *
-     * @param endpoint O endpoint da API.
-     * @return A resposta da API como String.
-     * @throws Exception Se ocorrer um erro na requisição.
+     * DELETE simples.
      */
     public static String sendDeleteRequest(String endpoint) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("DELETE");
-        connection.setRequestProperty("Accept", "application/json"); // Pode ser útil para algumas APIs
+        connection.setRequestProperty("Accept", "application/json");
 
         return readResponse(connection);
     }
 
     /**
-     * Lê a resposta de uma conexão HTTP.
-     *
-     * @param connection A conexão HttpURLConnection.
-     * @return A resposta do servidor como String.
-     * @throws Exception Se ocorrer um erro na leitura da resposta ou se o código de resposta indicar falha.
+     * Lê a resposta (ou erro) da conexão HTTP.
      */
     private static String readResponse(HttpURLConnection connection) throws Exception {
         int responseCode = connection.getResponseCode();
-        if (responseCode >= 200 && responseCode < 300) { // Sucesso (2xx)
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                (responseCode >= 200 && responseCode < 300)
+                        ? connection.getInputStream()
+                        : connection.getErrorStream()
+        ))) {
             String inputLine;
             StringBuilder response = new StringBuilder();
-
-            while ((inputLine = in.readLine()) != null) {
+            while ((inputLine = br.readLine()) != null) {
                 response.append(inputLine);
             }
-            in.close();
-            return response.toString();
-        } else {
-            // Para erros, também é útil ler a mensagem de erro do servidor
-            BufferedReader errorReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-            String errorLine;
-            StringBuilder errorResponse = new StringBuilder();
-            while ((errorLine = errorReader.readLine()) != null) {
-                errorResponse.append(errorLine);
+
+            if (responseCode >= 200 && responseCode < 300) {
+                return response.toString();
+            } else {
+                throw new RuntimeException(
+                        "Falha na requisição HTTP. Código: " + responseCode +
+                                ", Mensagem: " + response
+                );
             }
-            errorReader.close();
-            throw new RuntimeException("Falha na requisição HTTP. Código: " + responseCode + ", Mensagem: " + errorResponse.toString());
         }
     }
 }
